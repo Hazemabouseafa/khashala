@@ -33,14 +33,17 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await hashPassword(password);
 
-    // Create user. If it's the very first user or email includes 'admin', we can make ADMIN or default USER
+    // If it's the very first user on the platform, make them ADMIN automatically
+    const totalUsers = await prisma.user.count().catch(() => 0);
+    const initialRole = totalUsers === 0 ? 'ADMIN' : 'USER';
+
     const user = await prisma.user.create({
       data: {
         name: name.trim(),
         email: email.toLowerCase().trim(),
         phone: phone ? phone.trim() : null,
         password: hashedPassword,
-        role: 'USER',
+        role: initialRole,
       },
     });
 

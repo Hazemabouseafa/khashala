@@ -24,17 +24,24 @@ async function main() {
     fs.writeFileSync(placeholderPath, webpBuffer);
   }
 
-  // Clear existing data safely
-  try {
-    await prisma.ad.deleteMany();
-    await prisma.report.deleteMany();
-    await prisma.adminLog.deleteMany();
-    await prisma.platformSetting.deleteMany();
-    await prisma.subcategory.deleteMany();
-    await prisma.category.deleteMany();
-    await prisma.user.deleteMany();
-  } catch (e) {
-    console.log('Tables may be empty, proceeding...');
+  // Check if database already has users
+  const userCount = await prisma.user.count().catch(() => 0);
+  if (userCount > 0) {
+    console.log('Database already initialized. Ensuring admin account and default settings exist safely...');
+    const adminPasswordHash = await bcrypt.hash('admin123', 10);
+    await prisma.user.upsert({
+      where: { email: 'admin@khashala.com' },
+      update: {},
+      create: {
+        name: 'مشرف خشاله',
+        email: 'admin@khashala.com',
+        phone: '+966500000001',
+        password: adminPasswordHash,
+        role: 'ADMIN' as any,
+      },
+    });
+    console.log('✓ Admin account verified: admin@khashala.com');
+    return;
   }
 
   // 1. Create Default Users

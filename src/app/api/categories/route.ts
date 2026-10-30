@@ -2,9 +2,110 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 
+const DEFAULT_INIT_CATEGORIES = [
+  {
+    name: 'سيارات ومركبات',
+    slug: 'vehicles',
+    icon: 'Car',
+    subs: [
+      { name: 'تويوتا', slug: 'vehicles-toyota', icon: 'Car' },
+      { name: 'مرسيدس بنز', slug: 'vehicles-mercedes', icon: 'Car' },
+      { name: 'بورش ورياضية', slug: 'vehicles-porsche', icon: 'Sparkles' },
+      { name: 'هيونداي وكيا', slug: 'vehicles-hyundai', icon: 'Car' },
+      { name: 'قطع غيار وإكسسوارات', slug: 'vehicles-parts', icon: 'Wrench' },
+      { name: 'دراجات نارية وقوارب', slug: 'vehicles-bikes', icon: 'Compass' },
+    ],
+  },
+  {
+    name: 'عقارات',
+    slug: 'real-estate',
+    icon: 'Building2',
+    subs: [
+      { name: 'شقق للإيجار', slug: 're-apartments-rent', icon: 'Building2' },
+      { name: 'شقق للبيع', slug: 're-apartments-sale', icon: 'Home' },
+      { name: 'فلل وقصور', slug: 're-villas', icon: 'Sparkles' },
+      { name: 'شاليهات واستراحات', slug: 're-chalets', icon: 'Compass' },
+      { name: 'أراضي ومزارع', slug: 're-lands', icon: 'Layers' },
+      { name: 'مكاتب وعقارات تجارية', slug: 're-commercial', icon: 'Briefcase' },
+    ],
+  },
+  {
+    name: 'إلكترونيات وأجهزة',
+    slug: 'electronics',
+    icon: 'Smartphone',
+    subs: [
+      { name: 'هواتف ذكية', slug: 'elec-phones', icon: 'Smartphone' },
+      { name: 'لابتوب وكمبيوتر', slug: 'elec-laptops', icon: 'Laptop' },
+      { name: 'ألعاب وبلايستيشن', slug: 'elec-gaming', icon: 'Gamepad2' },
+      { name: 'تلفزيونات وصوتيات', slug: 'elec-tv', icon: 'Tv' },
+      { name: 'أجهزة منزلية', slug: 'elec-appliances', icon: 'Zap' },
+      { name: 'كاميرات وتصوير', slug: 'elec-cameras', icon: 'Camera' },
+    ],
+  },
+  {
+    name: 'أثاث وديكور',
+    slug: 'furniture',
+    icon: 'Sofa',
+    subs: [
+      { name: 'مجالس وصالونات', slug: 'furn-living', icon: 'Sofa' },
+      { name: 'غرف نوم', slug: 'furn-bedroom', icon: 'Home' },
+      { name: 'طاولات وكراسي', slug: 'furn-tables', icon: 'Layers' },
+      { name: 'مطابخ وخزائن', slug: 'furn-kitchen', icon: 'Wrench' },
+      { name: 'سجاد ومفروشات', slug: 'furn-carpets', icon: 'Sparkles' },
+    ],
+  },
+  {
+    name: 'أزياء وموضة',
+    slug: 'fashion',
+    icon: 'Shirt',
+    subs: [
+      { name: 'ساعات فاخرة', slug: 'fash-watches', icon: 'Watch' },
+      { name: 'ملابس رجالية', slug: 'fash-men', icon: 'Shirt' },
+      { name: 'ملابس نسائية', slug: 'fash-women', icon: 'ShoppingBag' },
+      { name: 'أحذية وحقائب', slug: 'fash-bags', icon: 'ShoppingBag' },
+      { name: 'عطور ومستحضرات', slug: 'fash-perfumes', icon: 'Sparkles' },
+    ],
+  },
+  {
+    name: 'وظائف ومهن',
+    slug: 'jobs',
+    icon: 'Briefcase',
+    subs: [
+      { name: 'تقنية وبرمجة', slug: 'jobs-it', icon: 'Laptop' },
+      { name: 'تسويق ومبيعات', slug: 'jobs-marketing', icon: 'Sparkles' },
+      { name: 'هندسة ومقاولات', slug: 'jobs-engineering', icon: 'Wrench' },
+      { name: 'محاسبة وإدارة', slug: 'jobs-finance', icon: 'Briefcase' },
+      { name: 'توصيل وخدمات', slug: 'jobs-delivery', icon: 'Car' },
+    ],
+  },
+  {
+    name: 'خدمات وأعمال',
+    slug: 'services',
+    icon: 'Wrench',
+    subs: [
+      { name: 'نقل عفش وتخزين', slug: 'srv-moving', icon: 'Car' },
+      { name: 'صيانة وترميم', slug: 'srv-maintenance', icon: 'Wrench' },
+      { name: 'تنظيف وتعقيم', slug: 'srv-cleaning', icon: 'Sparkles' },
+      { name: 'تصميم وتسويق رقمي', slug: 'srv-design', icon: 'Laptop' },
+      { name: 'دروس وتدريب', slug: 'srv-tutoring', icon: 'Briefcase' },
+    ],
+  },
+  {
+    name: 'حيوانات ومستلزمات',
+    slug: 'pets',
+    icon: 'Dog',
+    subs: [
+      { name: 'قطط أليفة', slug: 'pets-cats', icon: 'Dog' },
+      { name: 'طيور وحمام', slug: 'pets-birds', icon: 'Sparkles' },
+      { name: 'خيول وإبل', slug: 'pets-horses', icon: 'Compass' },
+      { name: 'مستلزمات وأعلاف', slug: 'pets-supplies', icon: 'ShoppingBag' },
+    ],
+  },
+];
+
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
+    let categories = await prisma.category.findMany({
       include: {
         subcategories: {
           include: {
@@ -20,6 +121,43 @@ export async function GET() {
       },
       orderBy: { createdAt: 'asc' },
     });
+
+    // Auto-seed default categories if database is fresh and has 0 categories
+    if (categories.length === 0) {
+      for (const cat of DEFAULT_INIT_CATEGORIES) {
+        await prisma.category.create({
+          data: {
+            name: cat.name,
+            slug: cat.slug,
+            icon: cat.icon,
+            subcategories: {
+              create: cat.subs.map((s) => ({
+                name: s.name,
+                slug: s.slug,
+                icon: s.icon,
+              })),
+            },
+          },
+        }).catch(() => null);
+      }
+
+      categories = await prisma.category.findMany({
+        include: {
+          subcategories: {
+            include: {
+              _count: {
+                select: { ads: true },
+              },
+            },
+            orderBy: { name: 'asc' },
+          },
+          _count: {
+            select: { ads: true },
+          },
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+    }
 
     return NextResponse.json({ categories });
   } catch (error: any) {

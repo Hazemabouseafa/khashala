@@ -1,0 +1,68 @@
+version: '3.8'
+
+# ==============================================================================
+# Khashala (خُشاله) - Production Docker Compose Stack
+# Ideal for Coolify, Hetzner, DigitalOcean, AWS, or any Linux VPS
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL Database Service
+  # ----------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: khashala_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-khashala_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-khashala_secure_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-khashala_db}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-khashala_user} -d ${POSTGRES_DB:-khashala_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - khashala_network
+
+  # ----------------------------------------------------------------------------
+  # 2. Next.js Web Application
+  # ----------------------------------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: khashala_web
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-khashala_user}:${POSTGRES_PASSWORD:-khashala_secure_password_2026}@db:5432/${POSTGRES_DB:-khashala_db}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-khashala_super_secure_jwt_secret_change_in_production}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    volumes:
+      # Persistent volume for user-uploaded ad images (Sharp WebP files)
+      - uploads_data:/app/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - khashala_network
+
+# ------------------------------------------------------------------------------
+# Persistent Volumes & Networks
+# ------------------------------------------------------------------------------
+volumes:
+  pg_data:
+    name: khashala_pg_data
+  uploads_data:
+    name: khashala_uploads_data
+
+networks:
+  khashala_network:
+    name: khashala_network
+    driver: bridge

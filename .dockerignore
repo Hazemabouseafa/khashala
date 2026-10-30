@@ -1,0 +1,15 @@
+.git
+.gitignore
+.next
+node_modules
+npm-debug.log
+yarn-error.log
+.env.local
+.env*.local
+*.log
+.DS_Store
+Thumbs.db
+prisma/dev.db
+prisma/dev.db-journal
+public/uploads/*
+!public/uploads/.gitkeep

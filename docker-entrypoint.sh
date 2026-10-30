@@ -11,7 +11,7 @@ mkdir -p /app/public/uploads/ads
 # Automatic Prisma Database Schema Migration/Push
 if [ -n "$DATABASE_URL" ]; then
   echo "📦 Syncing database schema with Prisma..."
-  ./node_modules/.bin/prisma db push --skip-generate || npx prisma db push --skip-generate || true
+  node ./node_modules/prisma/build/index.js db push --skip-generate || ./node_modules/.bin/prisma db push --skip-generate || npx prisma db push --skip-generate || true
   echo "✓ Database schema verified!"
 fi
 

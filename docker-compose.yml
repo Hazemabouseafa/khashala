@@ -11,7 +11,6 @@ services:
   # ----------------------------------------------------------------------------
   db:
     image: postgres:16-alpine
-    container_name: khashala_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-khashala_user}
@@ -34,10 +33,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: khashala_web
     restart: unless-stopped
-    ports:
-      - "${PORT:-3000}:3000"
+    # Use expose for internal Docker network routing (Coolify Traefik reverse proxy)
+    # This prevents host port collision (e.g. "port 3000 is already allocated")
+    expose:
+      - "3000"
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -66,3 +66,4 @@ networks:
   khashala_network:
     name: khashala_network
     driver: bridge
+

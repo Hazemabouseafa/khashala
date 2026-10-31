@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const admin = await getCurrentUser();
@@ -16,13 +18,13 @@ export async function GET() {
       categories,
       pendingReportsCount,
       logsCount,
+      successfulPayments,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({ where: { isBanned: true } }),
       prisma.ad.findMany({
         select: {
           id: true,
-          price: true,
           status: true,
           city: true,
           isFeatured: true,
@@ -39,16 +41,18 @@ export async function GET() {
       }),
       prisma.report.count({ where: { status: 'PENDING' } }),
       prisma.adminLog.count(),
+      prisma.payment.findMany({
+        where: { status: 'SUCCESS' },
+        select: { amount: true, currency: true },
+      }),
     ]);
 
-    // Financial & Status aggregations
-    let totalMarketValue = 0;
     let totalViews = 0;
     let featuredCount = 0;
     let urgentCount = 0;
     const statusCounts: Record<string, number> = { ACTIVE: 0, PENDING: 0, REJECTED: 0, SOLD: 0 };
     const cityCounts: Record<string, number> = {};
-    const categoryValues: Record<string, number> = {};
+    const categoryViews: Record<string, number> = {};
 
     ads.forEach((ad) => {
       totalViews += ad.views || 0;
@@ -57,44 +61,36 @@ export async function GET() {
       if (statusCounts[ad.status] !== undefined) {
         statusCounts[ad.status]++;
       }
-
-      // Add to market value if ACTIVE
-      if (ad.status === 'ACTIVE') {
-        totalMarketValue += ad.price || 0;
-      }
-
-      // City distribution
       cityCounts[ad.city] = (cityCounts[ad.city] || 0) + 1;
-
-      // Category value
-      categoryValues[ad.categoryId] = (categoryValues[ad.categoryId] || 0) + (ad.price || 0);
+      categoryViews[ad.categoryId] = (categoryViews[ad.categoryId] || 0) + (ad.views || 0);
     });
 
-    const activeCount = statusCounts.ACTIVE || 1;
-    const averageActivePrice = Math.round(totalMarketValue / (statusCounts.ACTIVE || 1));
+    // Real verified payments ONLY (never seeded with dummy money data)
+    const realPaymentsRevenue = successfulPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const realPaymentsCount = successfulPayments.length;
 
-    // Format top cities
     const topCities = Object.entries(cityCounts)
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 8);
+      .slice(0, 10);
 
-    // Format category distribution
-    const categoryStats = categories.map((c) => ({
-      id: c.id,
-      name: c.name,
-      slug: c.slug,
-      icon: c.icon,
-      adsCount: c._count.ads,
-      subcategoriesCount: c._count.subcategories,
-      totalValue: categoryValues[c.id] || 0,
-      percentage: ads.length > 0 ? Math.round((c._count.ads / ads.length) * 100) : 0,
-    })).sort((a, b) => b.adsCount - a.adsCount);
+    const categoryStats = categories
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        icon: c.icon,
+        adsCount: c._count.ads,
+        subcategoriesCount: c._count.subcategories,
+        viewsCount: categoryViews[c.id] || 0,
+        percentage: ads.length > 0 ? Math.round((c._count.ads / ads.length) * 100) : 0,
+      }))
+      .sort((a, b) => b.adsCount - a.adsCount);
 
     return NextResponse.json({
       analytics: {
-        totalMarketValue,
-        averageActivePrice,
+        realPaymentsRevenue,
+        realPaymentsCount,
         totalViews,
         totalUsers,
         bannedUsers,

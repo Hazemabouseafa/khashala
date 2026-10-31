@@ -2,11 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
+const SECRET_ADMIN_KEYS = new Set(['paymobApiKey', 'paymobHmac']);
+
 export async function GET() {
   try {
+    const user = await getCurrentUser().catch(() => null);
+    const isAdmin = user?.role === 'ADMIN';
+
     const settings = await prisma.platformSetting.findMany();
     const settingsMap: Record<string, string> = {};
     settings.forEach((s) => {
+      if (!isAdmin && SECRET_ADMIN_KEYS.has(s.key)) {
+        return;
+      }
       settingsMap[s.key] = s.value;
     });
 
@@ -34,19 +44,21 @@ export async function POST(req: NextRequest) {
     for (const [key, value] of Object.entries(settings)) {
       await prisma.platformSetting.upsert({
         where: { key },
-        update: { value: String(value) },
-        create: { key, value: String(value) },
+        update: { value: String(value ?? '') },
+        create: { key, value: String(value ?? '') },
       });
     }
 
-    await prisma.adminLog.create({
-      data: {
-        adminName: admin.name,
-        action: 'UPDATE_PLATFORM_SETTINGS',
-        target: 'إعدادات المنصة العامة',
-        details: 'تم تحديث خيارات التكوين والشريط الإعلاني',
-      },
-    }).catch(() => null);
+    await prisma.adminLog
+      .create({
+        data: {
+          adminName: admin.name,
+          action: 'UPDATE_PLATFORM_SETTINGS',
+          target: 'إعدادات الهوية والمنصة',
+          details: 'تم تحديث إعدادات الهوية البصرية (الشعار وألوان الأيقونات) وتكوين المنصة',
+        },
+      })
+      .catch(() => null);
 
     return NextResponse.json({ success: true, message: 'تم حفظ الإعدادات بنجاح' });
   } catch (error: any) {

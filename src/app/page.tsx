@@ -14,7 +14,7 @@ async function getHomeAds() {
       prisma.ad.findMany({
         where: { status: 'ACTIVE' as any, isFeatured: true },
         orderBy: { createdAt: 'desc' },
-        take: 4,
+        take: 8,
         include: {
           category: true,
           subcategory: true,
@@ -23,7 +23,7 @@ async function getHomeAds() {
       prisma.ad.findMany({
         where: { status: 'ACTIVE' as any },
         orderBy: { createdAt: 'desc' },
-        take: 8,
+        take: 16,
         include: {
           category: true,
           subcategory: true,
@@ -177,8 +177,8 @@ export default async function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white/95 p-6 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-brand-600 flex items-center justify-center mb-4">
+          <div className="group bg-white/95 p-6 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl platform-icon-box platform-icon-box-hover flex items-center justify-center mb-4">
               <Zap className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-slate-900 mb-2">سرعة فائقة وضغط صور ذكي</h3>
@@ -187,8 +187,8 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="bg-white/95 p-6 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-4">
+          <div className="group bg-white/95 p-6 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl platform-icon-box platform-icon-box-hover flex items-center justify-center mb-4">
               <Shield className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-slate-900 mb-2">فلترة شاملة وأقسام فرعية دقيقة</h3>
@@ -197,8 +197,8 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="bg-white/95 p-6 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
+          <div className="group bg-white/95 p-6 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl platform-icon-box platform-icon-box-hover flex items-center justify-center mb-4">
               <HeartHandshake className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-slate-900 mb-2">تواصل مباشر وعروض واتساب فورية</h3>

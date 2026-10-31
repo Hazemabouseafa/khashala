@@ -23,9 +23,11 @@ prisma/*.db-journal
 *.sqlite
 *.sqlite3
 
-# User Uploaded Ad Media (keep folder structure)
+# User Uploaded Ad & Branding Media (keep folder structure)
 /public/uploads/ads/*
 !/public/uploads/ads/.gitkeep
+/public/uploads/branding/*
+!/public/uploads/branding/.gitkeep
 
 # Debug & Logs
 npm-debug.log*

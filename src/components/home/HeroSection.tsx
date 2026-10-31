@@ -104,7 +104,7 @@ export const HeroSection: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
             {/* Keyword Search Input */}
             <div className="sm:col-span-4 relative flex items-center">
-              <Search className="w-5 h-5 text-brand-500 absolute right-3.5 pointer-events-none" />
+              <Search className="w-5 h-5 platform-icon-tint absolute right-3.5 pointer-events-none" />
               <input
                 type="text"
                 placeholder="عن ماذا تبحث؟ (لاندكروزر، آيفون، شقة)..."
@@ -116,7 +116,7 @@ export const HeroSection: React.FC = () => {
 
             {/* Country Dropdown */}
             <div className="sm:col-span-2 relative flex items-center">
-              <Globe className="w-4 h-4 text-brand-600 absolute right-3 pointer-events-none" />
+              <Globe className="w-4 h-4 platform-icon-tint absolute right-3 pointer-events-none" />
               <select
                 value={selectedCountry}
                 onChange={(e) => handleCountryChange(e.target.value)}
@@ -133,7 +133,7 @@ export const HeroSection: React.FC = () => {
 
             {/* City Dropdown */}
             <div className="sm:col-span-2 relative flex items-center">
-              <MapPin className="w-4 h-4 text-brand-600 absolute right-3 pointer-events-none" />
+              <MapPin className="w-4 h-4 platform-icon-tint absolute right-3 pointer-events-none" />
               <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
@@ -164,7 +164,7 @@ export const HeroSection: React.FC = () => {
 
             {/* Category Dropdown */}
             <div className="sm:col-span-2 relative flex items-center">
-              <Layers className="w-4 h-4 text-brand-600 absolute right-3 pointer-events-none" />
+              <Layers className="w-4 h-4 platform-icon-tint absolute right-3 pointer-events-none" />
               <select
                 value={selectedCategory}
                 onChange={(e) => handleCategoryChange(e.target.value)}
@@ -195,16 +195,16 @@ export const HeroSection: React.FC = () => {
 
           {/* Subcategory Quick Row if a Category with Subcategories is Selected */}
           {currentSubcategories.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-blue-100 px-1">
-              <span className="text-[11px] font-bold text-brand-700">
+            <div className="flex flex-nowrap sm:flex-wrap items-center gap-2 pt-2 border-t border-blue-100 px-1 overflow-x-auto no-scrollbar">
+              <span className="text-[11px] font-bold text-slate-700 shrink-0">
                 اختر القسم الفرعي في {activeCatObj?.name}:
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedSubcategory('')}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition-colors ${
+                className={`shrink-0 px-3 py-1 rounded-xl text-xs font-bold transition-colors ${
                   selectedSubcategory === ''
-                    ? 'bg-brand-600 text-white'
+                    ? 'platform-icon-active'
                     : 'bg-blue-50 text-slate-700 hover:bg-blue-100'
                 }`}
               >
@@ -215,9 +215,9 @@ export const HeroSection: React.FC = () => {
                   key={sub.id}
                   type="button"
                   onClick={() => setSelectedSubcategory(sub.id)}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-colors ${
+                  className={`shrink-0 px-3 py-1 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
                     selectedSubcategory === sub.id
-                      ? 'bg-brand-600 text-white'
+                      ? 'platform-icon-active'
                       : 'bg-blue-50 text-slate-700 hover:bg-blue-100'
                   }`}
                 >
@@ -233,9 +233,9 @@ export const HeroSection: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs text-blue-100"
+          className="mt-6 flex flex-nowrap sm:flex-wrap items-center sm:justify-center gap-2 text-xs text-blue-100 overflow-x-auto no-scrollbar pb-1"
         >
-          <span className="font-bold text-sky-300">المدن الأكثر نشاطاً:</span>
+          <span className="font-bold text-sky-300 shrink-0">المدن الأكثر نشاطاً:</span>
           {[
             'الرياض 🇸🇦',
             'القاهرة 🇪🇬',
@@ -253,7 +253,7 @@ export const HeroSection: React.FC = () => {
                 onClick={() => {
                   router.push(`/ads?city=${encodeURIComponent(cityName)}`);
                 }}
-                className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/15 font-medium"
+                className="shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/15 font-medium"
               >
                 {chip}
               </button>

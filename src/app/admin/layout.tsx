@@ -99,8 +99,8 @@ export default function AdminLayout({
       badge: pendingReportsCount > 0 ? pendingReportsCount : null,
       badgeColor: 'bg-rose-500 text-white',
     },
-    { name: 'التحليلات والمؤشرات المالية', href: '/admin/analytics', icon: BarChart3 },
-    { name: 'إعدادات المنصة والشريط', href: '/admin/settings', icon: Settings },
+    { name: 'التحليلات وإحصائيات النشاط', href: '/admin/analytics', icon: BarChart3 },
+    { name: 'الهوية البصرية وإعدادات المنصة', href: '/admin/settings', icon: Settings },
     { name: 'سجل تدقيق المشرفين', href: '/admin/logs', icon: History },
   ];
 
@@ -111,7 +111,7 @@ export default function AdminLayout({
         {/* Admin Header Banner */}
         <div className="bg-gradient-to-l from-navy-950 via-navy-900 to-brand-800 rounded-3xl p-6 text-white mb-8 shadow-xl border border-blue-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <KhashalaLogo size="md" variant="icon" asLink={false} />
+            <KhashalaLogo size="md" variant="full" theme="light" asLink={false} />
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-xl font-black">لوحة تحكم خُشاله الشاملة (Enterprise Admin)</h1>

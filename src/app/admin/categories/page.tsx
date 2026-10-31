@@ -513,7 +513,7 @@ export default function AdminCategoriesPage() {
                 {/* Main Category Header Card */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-blue-100">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-brand-600/20">
+                    <div className="w-14 h-14 rounded-2xl platform-icon-box flex items-center justify-center shrink-0">
                       <CategoryIcon name={cat.icon} className="w-7 h-7" />
                     </div>
                     <div>
@@ -597,7 +597,7 @@ export default function AdminCategoriesPage() {
                           </div>
 
                           {/* Identical Category Card Icon Box */}
-                          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-brand-600 flex items-center justify-center mb-3 group-hover:bg-brand-600 group-hover:text-white transition-colors duration-200 shadow-2xs">
+                          <div className="w-12 h-12 rounded-2xl platform-icon-box platform-icon-box-hover flex items-center justify-center mb-3">
                             <CategoryIcon name={sub.icon || cat.icon || 'Tag'} className="w-6 h-6" />
                           </div>
 

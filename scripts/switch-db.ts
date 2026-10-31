@@ -123,9 +123,11 @@ model Payment {
 
   fs.writeFileSync(schemaPath, sqliteSchema);
   
-  let envContent = fs.readFileSync(envPath, 'utf8');
-  envContent = envContent.replace(/DATABASE_URL=.*/, 'DATABASE_URL="file:./dev.db"');
-  fs.writeFileSync(envPath, envContent);
+  if (fs.existsSync(envPath)) {
+    let envContent = fs.readFileSync(envPath, 'utf8');
+    envContent = envContent.replace(/DATABASE_URL=.*/, 'DATABASE_URL="file:./dev.db"');
+    fs.writeFileSync(envPath, envContent);
+  }
   console.log('✓ Successfully configured for SQLite!');
 } else {
   console.log('Switching Prisma schema and .env to PostgreSQL...');
@@ -256,8 +258,10 @@ model Payment {
 `;
 
   fs.writeFileSync(schemaPath, pgSchema);
-  let envContent = fs.readFileSync(envPath, 'utf8');
-  envContent = envContent.replace(/DATABASE_URL=.*/, 'DATABASE_URL="postgresql://postgres:postgres@localhost:5432/khashala?schema=public"');
-  fs.writeFileSync(envPath, envContent);
+  if (fs.existsSync(envPath)) {
+    let envContent = fs.readFileSync(envPath, 'utf8');
+    envContent = envContent.replace(/DATABASE_URL=.*/, 'DATABASE_URL="postgresql://postgres:postgres@localhost:5432/khashala?schema=public"');
+    fs.writeFileSync(envPath, envContent);
+  }
   console.log('✓ Successfully configured for PostgreSQL!');
 }

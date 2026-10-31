@@ -288,10 +288,10 @@ export default function AdminOverviewPage() {
           <div className="space-y-1">
             <h3 className="text-sm font-black flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-emerald-400" />
-              <span>التحليلات والقيمة السوقية</span>
+              <span>التحليلات وإحصائيات النشاط</span>
             </h3>
             <p className="text-[11px] text-slate-300">
-              مؤشرات مالية ورسوم بيانية لتوزيع الأقسام
+              رسوم بيانية لتوزيع الأقسام والمدن والمشاهدات
             </p>
           </div>
           <ArrowRight className="w-4 h-4 text-sky-200 group-hover:-translate-x-1 transition-transform" />

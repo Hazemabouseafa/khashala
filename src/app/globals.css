@@ -6,6 +6,8 @@
 
 :root {
   --font-cairo: 'Cairo', 'Tajawal', sans-serif;
+  --platform-icon-color: #dc2626;
+  --platform-icon-bg: #ffffff;
 }
 
 html {
@@ -21,6 +23,43 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Dynamic Admin-Controlled Platform Icon Theme Classes */
+.platform-icon-box {
+  background-color: var(--platform-icon-bg);
+  color: var(--platform-icon-color);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+}
+
+.group:hover .platform-icon-box-hover {
+  background-color: var(--platform-icon-color);
+  color: #ffffff;
+  border-color: var(--platform-icon-color);
+}
+
+.platform-icon-active {
+  background-color: var(--platform-icon-color) !important;
+  color: #ffffff !important;
+  border-color: var(--platform-icon-color) !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14);
+}
+
+.platform-icon-tint {
+  color: var(--platform-icon-color);
+}
+
+/* Smooth Touch Horizontal Scroller (Hide Scrollbar on Mobile Carousels) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Custom Blue Harmonized Scrollbar */

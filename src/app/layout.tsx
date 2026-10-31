@@ -2,6 +2,10 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { BrandingProvider } from '@/components/providers/BrandingProvider';
+import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 
 export const viewport: Viewport = {
   themeColor: '#1e3a8a',
@@ -49,13 +53,56 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+function sanitizeHexColor(val: string | undefined, fallback: string): string {
+  if (!val) return fallback;
+  const clean = val.trim();
+  if (/^#[0-9a-fA-F]{3,8}$/.test(clean)) return clean;
+  return fallback;
+}
+
+async function getInitialBranding() {
+  try {
+    const rows = await prisma.platformSetting.findMany({
+      where: {
+        key: { in: ['siteLogoUrl', 'iconColor', 'iconBgColor'] },
+      },
+    });
+    const map: Record<string, string> = {};
+    rows.forEach((r) => {
+      map[r.key] = r.value;
+    });
+    return {
+      siteLogoUrl: map.siteLogoUrl || '',
+      iconColor: sanitizeHexColor(map.iconColor, '#dc2626'),
+      iconBgColor: sanitizeHexColor(map.iconBgColor, '#ffffff'),
+    };
+  } catch {
+    return {
+      siteLogoUrl: '',
+      iconColor: '#dc2626',
+      iconBgColor: '#ffffff',
+    };
+  }
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const initialBranding = await getInitialBranding();
+
   return (
-    <html lang="ar" dir="rtl">
+    <html
+      lang="ar"
+      dir="rtl"
+      style={
+        {
+          '--platform-icon-color': initialBranding.iconColor,
+          '--platform-icon-bg': initialBranding.iconBgColor,
+        } as React.CSSProperties
+      }
+    >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -65,9 +112,11 @@ export default function RootLayout({
         />
       </head>
       <body className="font-arabic antialiased flex flex-col min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-sky-100 text-slate-900">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <BrandingProvider initialBranding={initialBranding}>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </BrandingProvider>
       </body>
     </html>
   );

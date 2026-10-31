@@ -24,8 +24,8 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Generate Prisma Client & Build Next.js
-RUN npx prisma generate
+# Switch Prisma schema to PostgreSQL for Docker production, generate client & build Next.js
+RUN npx tsx scripts/switch-db.ts postgres && npx prisma generate
 RUN npm run build
 
 # 4. Runner Stage (Minimal Production Container)
@@ -41,11 +41,9 @@ ENV HOSTNAME="0.0.0.0"
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Create uploads directory with write permissions
-RUN mkdir -p /app/public/uploads/ads && chown -R nextjs:nodejs /app/public
-
 # Copy standalone server & assets
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+RUN mkdir -p /app/public/uploads/ads /app/public/uploads/branding && chown -R nextjs:nodejs /app/public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma

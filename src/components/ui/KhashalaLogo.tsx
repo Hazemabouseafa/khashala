@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useBranding } from '@/components/providers/BrandingProvider';
 
 export interface KhashalaLogoProps {
   variant?: 'full' | 'compact' | 'icon';
@@ -10,6 +11,7 @@ export interface KhashalaLogoProps {
   showSubtitle?: boolean;
   className?: string;
   asLink?: boolean;
+  overrideSrc?: string;
 }
 
 export const KhashalaLogo: React.FC<KhashalaLogoProps> = ({
@@ -18,22 +20,30 @@ export const KhashalaLogo: React.FC<KhashalaLogoProps> = ({
   theme = 'dark',
   className = '',
   asLink = true,
+  overrideSrc,
 }) => {
-  // Height sizing (aspect ratio of transparent logo is 334 / 351 ≈ 0.95)
+  const { siteLogoUrl } = useBranding();
+
+  // Height sizing
   const sizes = {
-    sm: { h: 'h-10', w: 'w-auto' },
-    md: { h: 'h-13 sm:h-14', w: 'w-auto' },
-    lg: { h: 'h-18 sm:h-20', w: 'w-auto' },
-    xl: { h: 'h-24 sm:h-28', w: 'w-auto' },
+    sm: { h: 'h-10', w: 'w-auto max-w-[150px]' },
+    md: { h: 'h-12 sm:h-14', w: 'w-auto max-w-[190px]' },
+    lg: { h: 'h-18 sm:h-20', w: 'w-auto max-w-[240px]' },
+    xl: { h: 'h-24 sm:h-28', w: 'w-auto max-w-[300px]' },
   }[size];
 
-  // Glow filter for dark backgrounds (Footer & Admin Banner) so the Navy text pops brilliantly
+  // Glow filter for dark backgrounds (Footer & Admin Banner)
   const themeFilter =
     theme === 'light'
       ? 'filter drop-shadow-[0_2px_12px_rgba(255,255,255,0.45)] brightness-105'
       : 'filter drop-shadow-[0_2px_8px_rgba(15,23,42,0.08)]';
 
-  const logoSrc = variant === 'icon' ? '/logo-icon.png' : '/logo.png';
+  const defaultSrc = variant === 'icon' ? '/logo-icon.png' : '/logo.png';
+  const logoSrc = overrideSrc !== undefined
+    ? overrideSrc || defaultSrc
+    : siteLogoUrl && siteLogoUrl.trim().length > 0
+    ? siteLogoUrl.trim()
+    : defaultSrc;
 
   const imageElement = (
     <div

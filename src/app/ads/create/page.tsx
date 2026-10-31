@@ -319,9 +319,9 @@ export default function CreateAdPage() {
           {availableSubcategories.length > 0 && (
             <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-200/80 space-y-2.5">
               <span className="text-xs font-bold text-slate-700 block">
-                أو اختر القسم الفرعي مباشرة من البطاقات:
+                أو اختر القسم الفرعي مباشرة (اسحب أفقياً):
               </span>
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
+              <div className="flex flex-nowrap overflow-x-auto no-scrollbar snap-x snap-mandatory gap-2.5 pb-1 sm:grid sm:grid-cols-4 md:grid-cols-5">
                 {availableSubcategories.map((sub: any) => {
                   const isSelected = subcategoryId === sub.id;
                   return (
@@ -329,19 +329,28 @@ export default function CreateAdPage() {
                       key={sub.id}
                       type="button"
                       onClick={() => setSubcategoryId(isSelected ? '' : sub.id)}
-                      className={`flex flex-col items-center p-3 rounded-xl border text-center transition-all ${
+                      className={`w-[104px] sm:w-auto shrink-0 snap-start group flex flex-col items-center p-3 rounded-xl border text-center transition-all ${
                         isSelected
-                          ? 'bg-brand-600 text-white border-brand-600 shadow-sm'
-                          : 'bg-white hover:bg-blue-50 text-slate-700 border-blue-200'
+                          ? 'bg-white border-2 shadow-sm'
+                          : 'bg-white hover:bg-slate-50 text-slate-700 border-blue-200'
                       }`}
+                      style={isSelected ? { borderColor: 'var(--platform-icon-color)' } : undefined}
                     >
-                      <CategoryIcon
-                        name={sub.icon || selectedCategoryObj?.icon || 'Tag'}
-                        className={`w-5 h-5 mb-1.5 ${
-                          isSelected ? 'text-white' : 'text-brand-600'
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center mb-1.5 ${
+                          isSelected
+                            ? 'platform-icon-active'
+                            : 'platform-icon-box platform-icon-box-hover'
                         }`}
-                      />
-                      <span className="text-[11px] font-bold line-clamp-1">{sub.name}</span>
+                      >
+                        <CategoryIcon
+                          name={sub.icon || selectedCategoryObj?.icon || 'Tag'}
+                          className="w-4 h-4"
+                        />
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-800 line-clamp-1">
+                        {sub.name}
+                      </span>
                     </button>
                   );
                 })}

@@ -5,8 +5,8 @@ echo "=================================================="
 echo "  🚀 Starting Khashala Production (خُشاله)        "
 echo "=================================================="
 
-# Ensure upload directory exists
-mkdir -p /app/public/uploads/ads
+# Ensure upload directories exist
+mkdir -p /app/public/uploads/ads /app/public/uploads/branding || true
 
 # Automatic Prisma Database Schema Migration/Push
 if [ -n "$DATABASE_URL" ]; then

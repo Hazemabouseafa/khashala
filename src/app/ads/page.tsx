@@ -203,33 +203,92 @@ function SearchAndFilterContent() {
         {/* Mobile Filter Button */}
         <button
           onClick={() => setIsMobileFilterOpen(true)}
-          className="lg:hidden flex items-center justify-center gap-2 bg-white border border-blue-200 px-4 py-2.5 rounded-xl font-bold text-sm text-brand-700 shadow-xs"
+          className="lg:hidden flex items-center justify-center gap-2 bg-white border border-blue-200 px-4 py-2.5 rounded-xl font-bold text-sm text-slate-800 shadow-xs"
         >
-          <SlidersHorizontal className="w-4 h-4 text-brand-600" />
+          <SlidersHorizontal className="w-4 h-4 platform-icon-tint" />
           <span>الفلترة المتقدمة</span>
         </button>
       </div>
 
-      {/* Subcategories Cards Bar (Identical Visual Style to Main Category Cards!) */}
+      {/* Horizontal Main Categories Scroller (Mobile & Tablet Quick Bar) */}
+      <div className="lg:hidden -mx-4 px-4">
+        <div className="flex items-center flex-nowrap overflow-x-auto no-scrollbar snap-x snap-mandatory gap-2.5 pb-1">
+          <button
+            type="button"
+            onClick={() => {
+              setCategory('');
+              setSubcategory('');
+            }}
+            className={`shrink-0 snap-start flex flex-col items-center justify-center w-[88px] p-2.5 rounded-2xl border text-center transition-all ${
+              !category
+                ? 'bg-white border-2 shadow-sm font-black'
+                : 'bg-white/95 border-blue-200/80 text-slate-700'
+            }`}
+            style={!category ? { borderColor: 'var(--platform-icon-color)' } : undefined}
+          >
+            <div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 ${
+                !category ? 'platform-icon-active' : 'platform-icon-box'
+              }`}
+            >
+              <Layers className="w-5 h-5" />
+            </div>
+            <span className="text-[11px] font-bold line-clamp-1">الكل</span>
+          </button>
+
+          {categoriesList.map((cat: any) => {
+            const isActiveCat = category === cat.slug || category === cat.id;
+            return (
+              <button
+                key={cat.slug}
+                type="button"
+                onClick={() => {
+                  setCategory(isActiveCat ? '' : cat.slug);
+                  setSubcategory('');
+                }}
+                className={`shrink-0 snap-start flex flex-col items-center justify-center w-[94px] p-2.5 rounded-2xl border text-center transition-all ${
+                  isActiveCat
+                    ? 'bg-white border-2 shadow-sm'
+                    : 'bg-white/95 border-blue-200/80 text-slate-700'
+                }`}
+                style={isActiveCat ? { borderColor: 'var(--platform-icon-color)' } : undefined}
+              >
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 ${
+                    isActiveCat ? 'platform-icon-active' : 'platform-icon-box'
+                  }`}
+                >
+                  <CategoryIcon name={cat.icon} className="w-5 h-5" />
+                </div>
+                <span className="text-[11px] font-bold text-slate-800 line-clamp-1">
+                  {cat.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Subcategories Horizontal Scroller on Mobile & Grid on Desktop */}
       {activeCatObj && currentSubcategories.length > 0 && (
-        <div className="bg-white/90 backdrop-blur-md p-5 rounded-3xl border border-blue-200/90 shadow-xs space-y-3.5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black text-slate-800 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-brand-600" />
-              <span>تصفية حسب القسم الفرعي في {activeCatObj.name}:</span>
+        <div className="bg-white/90 backdrop-blur-md p-4 sm:p-5 rounded-3xl border border-blue-200/90 shadow-xs space-y-3.5">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-xs sm:text-sm font-black text-slate-800 flex items-center gap-2">
+              <Layers className="w-4 h-4 platform-icon-tint shrink-0" />
+              <span>الأقسام الفرعية في {activeCatObj.name}:</span>
             </h2>
             {subcategory && (
               <button
                 type="button"
                 onClick={() => setSubcategory('')}
-                className="text-xs font-bold text-brand-600 hover:underline"
+                className="text-xs font-bold platform-icon-tint hover:underline shrink-0"
               >
-                عرض كل {activeCatObj.name}
+                عرض الكل
               </button>
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+          <div className="flex flex-nowrap overflow-x-auto no-scrollbar snap-x snap-mandatory gap-2.5 pb-1 md:grid md:grid-cols-6 md:gap-3">
             {currentSubcategories.map((sub: any) => {
               const subId = sub.id || sub.slug || sub;
               const subName = sub.name || sub;
@@ -244,26 +303,23 @@ function SearchAndFilterContent() {
                   key={subId}
                   type="button"
                   onClick={() => setSubcategory(isSelected ? '' : subId)}
-                  className={`group flex flex-col items-center justify-center p-3.5 rounded-2xl border transition-all duration-200 text-center cursor-pointer ${
+                  className={`w-[104px] md:w-auto shrink-0 snap-start group flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 text-center cursor-pointer ${
                     isSelected
-                      ? 'bg-gradient-to-b from-brand-600 to-blue-700 text-white border-brand-600 shadow-md'
-                      : 'bg-blue-50/40 hover:bg-white text-slate-800 border-blue-200/80 hover:border-brand-400 hover:shadow-sm'
+                      ? 'bg-white border-2 shadow-md'
+                      : 'bg-slate-50/60 hover:bg-white text-slate-800 border-blue-200/80 hover:shadow-sm'
                   }`}
+                  style={isSelected ? { borderColor: 'var(--platform-icon-color)' } : undefined}
                 >
                   <div
                     className={`w-11 h-11 rounded-2xl flex items-center justify-center mb-2 transition-colors ${
                       isSelected
-                        ? 'bg-white/20 text-white'
-                        : 'bg-blue-100/80 group-hover:bg-brand-600 text-brand-600 group-hover:text-white'
+                        ? 'platform-icon-active'
+                        : 'platform-icon-box platform-icon-box-hover'
                     }`}
                   >
                     <CategoryIcon name={subIcon} className="w-5 h-5" />
                   </div>
-                  <span
-                    className={`text-xs font-bold line-clamp-1 ${
-                      isSelected ? 'text-white' : 'text-slate-800 group-hover:text-brand-600'
-                    }`}
-                  >
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-800 line-clamp-1">
                     {subName}
                   </span>
                 </button>

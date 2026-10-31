@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   BarChart3,
-  TrendingUp,
-  DollarSign,
   Eye,
   ShoppingBag,
   Users,
@@ -13,7 +11,7 @@ import {
   Layers,
   MapPin,
   Loader2,
-  Calendar,
+  CreditCard,
 } from 'lucide-react';
 import { CategoryIcon } from '@/components/ui/CategoryIcon';
 
@@ -38,8 +36,8 @@ export default function AdminAnalyticsPage() {
   }
 
   const {
-    totalMarketValue = 0,
-    averageActivePrice = 0,
+    realPaymentsRevenue = 0,
+    realPaymentsCount = 0,
     totalViews = 0,
     totalUsers = 0,
     bannedUsers = 0,
@@ -53,36 +51,36 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Financial Valuation Banner */}
+      {/* Platform Activity & Engagement Banner */}
       <div className="bg-gradient-to-l from-navy-950 via-blue-950 to-brand-900 rounded-3xl p-6 sm:p-8 text-white shadow-lg border border-blue-800/40 relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
           <div>
             <span className="inline-block text-[11px] font-bold px-3 py-1 rounded-full bg-sky-400/20 text-sky-200 border border-sky-400/30 mb-2">
-              القيمة السوقية المجمعة (Market Capitalization)
+              إحصائيات التفاعل والزيارات المباشرة
             </span>
             <div className="flex items-baseline gap-2">
               <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-                {new Intl.NumberFormat('ar-SA').format(totalMarketValue)}
+                {new Intl.NumberFormat('ar-SA').format(totalViews)}
               </h1>
-              <span className="text-lg font-bold text-sky-300">ريال سعودي</span>
+              <span className="text-lg font-bold text-sky-300">مشاهدة للإعلانات</span>
             </div>
             <p className="text-xs text-blue-200/80 mt-1">
-              إجمالي القيمة التقديرية للسلع والعقارات والمركبات النشطة المعروضة حالياً على المنصة
+              إجمالي تفاعل الزوار والمشاهدات المسجلة على الإعلانات المنشورة عبر جميع الأقسام والمدن
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 shrink-0">
             <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 text-center">
-              <span className="text-[11px] text-blue-200 block">متوسط سعر الإعلان</span>
+              <span className="text-[11px] text-blue-200 block">إعلانات نشطة حالياً</span>
               <span className="text-lg font-black text-white">
-                {new Intl.NumberFormat('ar-SA').format(averageActivePrice)} ر.س
+                {statusCounts.ACTIVE || 0} إعلان
               </span>
             </div>
             <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 text-center">
-              <span className="text-[11px] text-blue-200 block">إجمالي المشاهدات</span>
-              <span className="text-lg font-black text-amber-300 flex items-center justify-center gap-1">
-                <Eye className="w-4 h-4" />
-                {totalViews}
+              <span className="text-[11px] text-blue-200 block">مدفوعات Paymob الفعلية</span>
+              <span className="text-lg font-black text-emerald-300 flex items-center justify-center gap-1">
+                <CreditCard className="w-4 h-4" />
+                {realPaymentsRevenue} ({realPaymentsCount})
               </span>
             </div>
           </div>
@@ -94,7 +92,7 @@ export default function AdminAnalyticsPage() {
         <div className="bg-white p-5 rounded-3xl border border-blue-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-slate-500">إجمالي الإعلانات</span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-brand-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl platform-icon-box flex items-center justify-center">
               <ShoppingBag className="w-4 h-4" />
             </div>
           </div>
@@ -112,7 +110,7 @@ export default function AdminAnalyticsPage() {
             </div>
           </div>
           <span className="text-2xl font-black text-slate-900">{featuredCount}</span>
-          <span className="text-[11px] text-slate-400 block mt-1">عروض النخبة المدفوعة</span>
+          <span className="text-[11px] text-slate-400 block mt-1">تظهر في صدارة الأقسام</span>
         </div>
 
         <div className="bg-white p-5 rounded-3xl border border-orange-200/80 shadow-xs">
@@ -129,7 +127,7 @@ export default function AdminAnalyticsPage() {
         <div className="bg-white p-5 rounded-3xl border border-blue-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold text-slate-500">الأعضاء المسجلين</span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-brand-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl platform-icon-box flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
           </div>
@@ -142,17 +140,16 @@ export default function AdminAnalyticsPage() {
 
       {/* Visual Analytics Grid: Category Breakdown + Top Cities */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
         {/* Category Breakdown (7 cols) */}
         <div className="lg:col-span-7 bg-white rounded-3xl border border-blue-200/80 p-6 sm:p-8 shadow-xs space-y-5">
           <div className="flex items-center justify-between border-b border-blue-100 pb-4">
             <div>
               <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                <Layers className="w-5 h-5 text-brand-600" />
-                <span>توزيع الإعلانات والقيمة حسب الأقسام</span>
+                <Layers className="w-5 h-5 platform-icon-tint" />
+                <span>توزيع الإعلانات والمشاهدات حسب الأقسام</span>
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                حصة كل قسم من إجمالي الإعلانات والقيمة المالية المتداولة
+                نسبة وحجم انتشار الإعلانات والمشاهدات داخل كل قسم رئيسي
               </p>
             </div>
           </div>
@@ -162,19 +159,22 @@ export default function AdminAnalyticsPage() {
               <div key={cat.id} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-bold text-slate-800">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-blue-50 text-brand-600 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg platform-icon-box flex items-center justify-center">
                       <CategoryIcon name={cat.icon} className="w-4 h-4" />
                     </div>
                     <span>{cat.name}</span>
                     <span className="text-[10px] text-slate-400 font-normal">
-                      ({cat.adsCount} إعلان • {cat.subcategoriesCount} قسم فرعي)
+                      ({cat.adsCount} إعلان • {cat.subcategoriesCount} فرعي)
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-brand-600 font-black">
-                      {new Intl.NumberFormat('ar-SA').format(cat.totalValue)} ر.س
+                    <span className="text-slate-600 font-bold flex items-center gap-1 text-[11px]">
+                      <Eye className="w-3.5 h-3.5 text-slate-400" />
+                      {new Intl.NumberFormat('ar-SA').format(cat.viewsCount)}
                     </span>
-                    <span className="text-slate-400 font-mono text-[11px]">%{cat.percentage}</span>
+                    <span className="text-brand-600 font-mono text-[11px] font-black">
+                      %{cat.percentage}
+                    </span>
                   </div>
                 </div>
 
@@ -195,7 +195,7 @@ export default function AdminAnalyticsPage() {
           {/* Top Arab Cities */}
           <div className="bg-white rounded-3xl border border-blue-200/80 p-6 shadow-xs space-y-4">
             <h3 className="text-base font-black text-slate-900 flex items-center gap-2 border-b border-blue-100 pb-3">
-              <MapPin className="w-5 h-5 text-brand-600" />
+              <MapPin className="w-5 h-5 platform-icon-tint" />
               <span>المدن الأكثر نشاطاً في الإعلانات</span>
             </h3>
 
@@ -219,10 +219,10 @@ export default function AdminAnalyticsPage() {
             </div>
           </div>
 
-          {/* Status Distribution Pie/Bar Card */}
+          {/* Status Distribution Card */}
           <div className="bg-white rounded-3xl border border-blue-200/80 p-6 shadow-xs space-y-4">
             <h3 className="text-base font-black text-slate-900 flex items-center gap-2 border-b border-blue-100 pb-3">
-              <BarChart3 className="w-5 h-5 text-brand-600" />
+              <BarChart3 className="w-5 h-5 platform-icon-tint" />
               <span>توزيع حالات الإعلانات</span>
             </h3>
 
@@ -256,7 +256,6 @@ export default function AdminAnalyticsPage() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

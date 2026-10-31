@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
+import { ensureSampleDataSeeded } from '@/lib/auto-seed';
 
 const DEFAULT_INIT_CATEGORIES = [
   {
@@ -105,6 +106,7 @@ const DEFAULT_INIT_CATEGORIES = [
 
 export async function GET() {
   try {
+    await ensureSampleDataSeeded();
     let categories = await prisma.category.findMany({
       include: {
         subcategories: {

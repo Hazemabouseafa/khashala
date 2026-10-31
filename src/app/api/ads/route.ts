@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { getCountryByName } from '@/lib/constants';
+import { ensureSampleDataSeeded } from '@/lib/auto-seed';
 
 export async function GET(req: NextRequest) {
   try {
+    await ensureSampleDataSeeded();
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q') || '';
     const category = searchParams.get('category');

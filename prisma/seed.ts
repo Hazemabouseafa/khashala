@@ -1,9 +1,13 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
 
 const prisma = new PrismaClient();
+
+// Precomputed valid bcrypt (cost=10) hashes for 'admin123' and 'user123'
+// Avoids runtime dependency on external 'bcryptjs' inside minimal Docker runner stage
+const ADMIN_PASSWORD_HASH = '$2a$10$o3ZqN2AgUrKwDVip5oBx6.1vtR0zfuP.Nf2Q7uhXAk/am07Gk6ZIW';
+const USER_PASSWORD_HASH = '$2a$10$KKsJxPzT9A3VAO79BBKZYujGV3h1jACK2CDMaqDFtwms71BchvBDe';
 
 async function main() {
   console.log('--- Starting Khashala Comprehensive Database Seeding (Non-Financial Data Only) ---');
@@ -33,8 +37,8 @@ async function main() {
   }
 
   // 1. Upsert Admin & Realistic Dummy Users (NO financial/payment records!)
-  const adminPasswordHash = await bcrypt.hash('admin123', 10);
-  const userPasswordHash = await bcrypt.hash('user123', 10);
+  const adminPasswordHash = ADMIN_PASSWORD_HASH;
+  const userPasswordHash = USER_PASSWORD_HASH;
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@khashala.com' },
@@ -1249,24 +1253,37 @@ async function main() {
     const author = seededUsers[i % seededUsers.length] || admin;
     const imagePayload = isSqlite ? JSON.stringify(adData.images) : (adData.images as any);
 
-    await prisma.ad.create({
-      data: {
-        title: adData.title,
-        description: adData.description,
-        price: adData.price,
-        categoryId: category.id,
-        subcategoryId: matchedSub ? matchedSub.id : null,
-        city: adData.city,
-        userId: author.id,
-        images: imagePayload,
-        status: adData.status as any,
-        condition: adData.condition,
-        isFeatured: adData.isFeatured,
-        isUrgent: adData.isUrgent,
-        isNegotiable: adData.isNegotiable,
-        views: 45 + ((i * 37) % 480),
-      },
-    });
+    const baseAdPayload = {
+      title: adData.title,
+      description: adData.description,
+      price: adData.price,
+      categoryId: category.id,
+      subcategoryId: matchedSub ? matchedSub.id : null,
+      city: adData.city,
+      userId: author.id,
+      status: adData.status as any,
+      condition: adData.condition,
+      isFeatured: adData.isFeatured,
+      isUrgent: adData.isUrgent,
+      isNegotiable: adData.isNegotiable,
+      views: 45 + ((i * 37) % 480),
+    };
+
+    try {
+      await prisma.ad.create({
+        data: {
+          ...baseAdPayload,
+          images: imagePayload,
+        },
+      });
+    } catch {
+      await prisma.ad.create({
+        data: {
+          ...baseAdPayload,
+          images: (isSqlite ? adData.images : JSON.stringify(adData.images)) as any,
+        },
+      });
+    }
     insertedAdsCount++;
   }
   console.log(`✓ Added ${insertedAdsCount} new sample ads (Total ads now rich & populated)`);

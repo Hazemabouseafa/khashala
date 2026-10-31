@@ -4,12 +4,14 @@ import { HeroSection } from '@/components/home/HeroSection';
 import { CategoryGrid } from '@/components/home/CategoryGrid';
 import { AdCard } from '@/components/ads/AdCard';
 import { prisma } from '@/lib/prisma';
+import { ensureSampleDataSeeded } from '@/lib/auto-seed';
 import { PlusCircle, Flame, Star, Shield, Zap, HeartHandshake } from 'lucide-react';
 
 export const revalidate = 0;
 
 async function getHomeAds() {
   try {
+    await ensureSampleDataSeeded();
     const [featuredRaw, latestRaw] = await Promise.all([
       prisma.ad.findMany({
         where: { status: 'ACTIVE' as any, isFeatured: true },

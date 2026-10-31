@@ -179,15 +179,12 @@ export const TopTranslateBar: React.FC<TopTranslateBarProps> = ({
           )}
         </div>
 
-        {/* Left Side: Google Translate Bar (Arabic <-> English) */}
+        {/* Left Side: Language Switcher (Arabic <-> English) */}
         <div
-          className="flex items-center gap-2 shrink-0 notranslate"
+          className="flex items-center gap-1.5 shrink-0 notranslate"
           translate="no"
         >
-          <div className="hidden sm:flex items-center gap-1 text-slate-300 text-[11px] font-semibold">
-            <Globe className="w-3.5 h-3.5 text-[#ef4444]" />
-            <span>Google Translate:</span>
-          </div>
+          <Globe className="w-3.5 h-3.5 text-[#ef4444] hidden sm:block" />
 
           <div className="inline-flex items-center rounded-lg bg-slate-800/90 p-0.5 border border-slate-700">
             <button

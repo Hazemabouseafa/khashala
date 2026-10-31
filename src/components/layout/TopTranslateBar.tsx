@@ -15,30 +15,94 @@ interface TopTranslateBarProps {
   showAnnouncement?: boolean;
 }
 
-function getCurrentLangFromCookie(): 'ar' | 'en' {
-  if (typeof document === 'undefined') return 'ar';
-  const match = document.cookie.match(/(?:^|;\s*)googtrans=([^;]+)/);
-  if (match && decodeURIComponent(match[1]).endsWith('/en')) {
-    return 'en';
+const LANG_STORAGE_KEY = 'khashala_lang';
+
+function clearAllGoogTransCookies() {
+  if (typeof document === 'undefined') return;
+
+  const host = window.location.hostname;
+  const hostParts = host.split('.');
+  const domains: (string | null)[] = [null, host, `.${host}`];
+
+  for (let i = 0; i < hostParts.length - 1; i++) {
+    const sub = hostParts.slice(i).join('.');
+    domains.push(sub);
+    domains.push(`.${sub}`);
   }
-  return 'ar';
+
+  const paths = ['/', window.location.pathname || '/'];
+  const expiry = 'Thu, 01 Jan 1970 00:00:00 GMT';
+
+  for (const d of domains) {
+    for (const p of paths) {
+      if (d) {
+        document.cookie = `googtrans=; expires=${expiry}; path=${p}; domain=${d};`;
+      } else {
+        document.cookie = `googtrans=; expires=${expiry}; path=${p};`;
+      }
+    }
+  }
 }
 
-function setGoogTransCookie(lang: 'ar' | 'en') {
+function setEnglishGoogTransCookie() {
   if (typeof document === 'undefined') return;
+  clearAllGoogTransCookies();
   const host = window.location.hostname;
-  if (lang === 'ar') {
-    document.cookie =
-      'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${host};`;
-    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${host};`;
-  } else {
-    const val = `/ar/${lang}`;
-    document.cookie = `googtrans=${val}; path=/;`;
-    if (host && host !== 'localhost') {
-      document.cookie = `googtrans=${val}; path=/; domain=${host};`;
-      document.cookie = `googtrans=${val}; path=/; domain=.${host};`;
+  document.cookie = 'googtrans=/ar/en; path=/;';
+  if (host && host !== 'localhost') {
+    document.cookie = `googtrans=/ar/en; path=/; domain=${host};`;
+    document.cookie = `googtrans=/ar/en; path=/; domain=.${host};`;
+  }
+}
+
+function loadAndTriggerGoogleTranslateToEnglish() {
+  if (typeof window === 'undefined') return;
+
+  setEnglishGoogTransCookie();
+  document.documentElement.dir = 'ltr';
+  document.documentElement.lang = 'en';
+
+  const triggerCombo = () => {
+    const combo = document.querySelector(
+      '.goog-te-combo'
+    ) as HTMLSelectElement | null;
+    if (combo) {
+      combo.value = 'en';
+      combo.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
     }
+    return false;
+  };
+
+  if (triggerCombo()) {
+    return;
+  }
+
+  window.googleTranslateElementInit = () => {
+    if (window.google?.translate?.TranslateElement) {
+      new window.google.translate.TranslateElement(
+        {
+          pageLanguage: 'ar',
+          includedLanguages: 'en,ar',
+          autoDisplay: false,
+        },
+        'google_translate_element'
+      );
+      setTimeout(triggerCombo, 250);
+      setTimeout(triggerCombo, 700);
+    }
+  };
+
+  const existingScript = document.getElementById('google-translate-script');
+  if (!existingScript) {
+    const script = document.createElement('script');
+    script.id = 'google-translate-script';
+    script.src =
+      'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    script.async = true;
+    document.body.appendChild(script);
+  } else if (window.google?.translate?.TranslateElement) {
+    window.googleTranslateElementInit();
   }
 }
 
@@ -49,64 +113,51 @@ export const TopTranslateBar: React.FC<TopTranslateBarProps> = ({
   const [activeLang, setActiveLang] = useState<'ar' | 'en'>('ar');
 
   useEffect(() => {
-    const initialLang = getCurrentLangFromCookie();
-    setActiveLang(initialLang);
-    document.documentElement.dir = initialLang === 'en' ? 'ltr' : 'rtl';
-    document.documentElement.lang = initialLang;
-
-    window.googleTranslateElementInit = () => {
-      if (window.google?.translate?.TranslateElement) {
-        new window.google.translate.TranslateElement(
-          {
-            pageLanguage: 'ar',
-            includedLanguages: 'en,ar',
-            autoDisplay: false,
-          },
-          'google_translate_element'
-        );
+    let savedLang: 'ar' | 'en' = 'ar';
+    try {
+      const stored = localStorage.getItem(LANG_STORAGE_KEY);
+      if (stored === 'en') {
+        savedLang = 'en';
       }
-    };
+    } catch {}
 
-    const existingScript = document.getElementById('google-translate-script');
-    if (!existingScript) {
-      const script = document.createElement('script');
-      script.id = 'google-translate-script';
-      script.src =
-        'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-      script.async = true;
-      document.body.appendChild(script);
-    } else if (window.google?.translate?.TranslateElement) {
-      window.googleTranslateElementInit();
+    if (savedLang === 'en') {
+      setActiveLang('en');
+      loadAndTriggerGoogleTranslateToEnglish();
+    } else {
+      // Ensure 100% pure native Arabic when savedLang is 'ar'
+      clearAllGoogTransCookies();
+      setActiveLang('ar');
+      document.documentElement.dir = 'rtl';
+      document.documentElement.lang = 'ar';
     }
   }, []);
 
   const switchLanguage = (targetLang: 'ar' | 'en') => {
-    if (targetLang === activeLang && targetLang === getCurrentLangFromCookie()) {
-      return;
-    }
-
-    setGoogTransCookie(targetLang);
-    setActiveLang(targetLang);
-
-    document.documentElement.dir = targetLang === 'en' ? 'ltr' : 'rtl';
-    document.documentElement.lang = targetLang;
-
     if (targetLang === 'ar') {
-      // Reloading after clearing googtrans restores 100% clean original Arabic DOM
+      try {
+        localStorage.setItem(LANG_STORAGE_KEY, 'ar');
+      } catch {}
+      clearAllGoogTransCookies();
+      setActiveLang('ar');
+      document.documentElement.dir = 'rtl';
+      document.documentElement.lang = 'ar';
+      document.documentElement.classList.remove(
+        'translated-ltr',
+        'translated-rtl'
+      );
+
+      // Reload without loading Google Translate script so page returns to 100% native Arabic
       window.location.reload();
       return;
     }
 
-    const combo = document.querySelector(
-      '.goog-te-combo'
-    ) as HTMLSelectElement | null;
-
-    if (combo) {
-      combo.value = 'en';
-      combo.dispatchEvent(new Event('change', { bubbles: true }));
-    } else {
-      window.location.reload();
-    }
+    // Switching to English ('en')
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, 'en');
+    } catch {}
+    setActiveLang('en');
+    loadAndTriggerGoogleTranslateToEnglish();
   };
 
   return (

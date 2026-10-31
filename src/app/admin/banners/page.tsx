@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import {
   BANNER_OVERLAY_CLASSES,
+  BANNER_OVERLAY_STYLES,
   DEFAULT_HOME_BANNERS,
   HomeBannerItem,
 } from '@/lib/banners';
@@ -36,28 +37,28 @@ const OVERLAY_OPTIONS: {
   previewClass: string;
 }[] = [
   {
-    value: 'crimson',
-    label: 'أحمر خشاله (موصى به)',
-    previewClass: 'bg-gradient-to-l from-[#7f1d1d] to-[#991b1b]',
-  },
-  {
-    value: 'dark',
-    label: 'داكن كلاسيكي',
-    previewClass: 'bg-gradient-to-l from-[#111827] to-[#374151]',
-  },
-  {
-    value: 'slate',
-    label: 'رمادي عصري',
-    previewClass: 'bg-gradient-to-l from-[#1f2937] to-[#475569]',
-  },
-  {
     value: 'light_scrim',
-    label: 'ظل خفيف شفاف',
+    label: 'تظليل خفيف متوازن (موصى به)',
     previewClass: 'bg-gradient-to-l from-black/60 to-black/20',
   },
   {
+    value: 'dark',
+    label: 'تظليل داكن هادئ',
+    previewClass: 'bg-gradient-to-l from-[#111827] to-[#374151]',
+  },
+  {
+    value: 'crimson',
+    label: 'تظليل أحمر خفيف',
+    previewClass: 'bg-gradient-to-l from-[#7f1d1d] to-[#991b1b]',
+  },
+  {
+    value: 'slate',
+    label: 'تظليل رمادي عصري',
+    previewClass: 'bg-gradient-to-l from-[#1f2937] to-[#475569]',
+  },
+  {
     value: 'none',
-    label: 'بدون تعتيم نهائياً',
+    label: 'بدون تظليل نهائياً',
     previewClass: 'bg-slate-100 border border-slate-300',
   },
 ];
@@ -152,7 +153,7 @@ export default function AdminBannersPage() {
       ctaHref: '/ads',
       image:
         'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1400&q=80&auto=format&fit=crop',
-      overlayTheme: 'crimson',
+      overlayTheme: 'light_scrim',
       displayMode: 'with_text',
       isActive: true,
     };
@@ -599,33 +600,56 @@ export default function AdminBannersPage() {
                         alt={currentBanner.title || 'معاينة البوستر'}
                         className="absolute inset-0 w-full h-full object-cover"
                       />
-                      <div
-                        className={`absolute inset-0 ${
-                          BANNER_OVERLAY_CLASSES[
-                            currentBanner.overlayTheme || 'dark'
-                          ]
-                        }`}
-                      />
+                      {(currentBanner.overlayTheme || 'light_scrim') !== 'none' && (
+                        <>
+                          <div
+                            className={`absolute inset-0 pointer-events-none ${
+                              BANNER_OVERLAY_CLASSES[
+                                currentBanner.overlayTheme || 'light_scrim'
+                              ]
+                            }`}
+                            style={{
+                              backgroundImage:
+                                BANNER_OVERLAY_STYLES[
+                                  currentBanner.overlayTheme || 'light_scrim'
+                                ],
+                            }}
+                          />
+                          <div
+                            className="absolute inset-x-0 bottom-0 h-14 pointer-events-none"
+                            style={{
+                              backgroundImage:
+                                'linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 100%)',
+                            }}
+                          />
+                        </>
+                      )}
                       <div className="relative z-10 h-full flex flex-col justify-center px-5 sm:px-10 max-w-xl text-white">
                         {currentBanner.badge && (
-                          <span className="inline-flex items-center gap-1.5 self-start text-[10px] sm:text-xs font-extrabold bg-white/15 backdrop-blur-xs px-2.5 py-1 rounded-md mb-2 border border-white/20">
+                          <span className="inline-flex items-center gap-1.5 self-start text-[10px] sm:text-xs font-extrabold bg-black/35 backdrop-blur-sm px-2.5 py-1 rounded-md mb-2 border border-white/25 shadow-sm">
                             <Star className="w-3 h-3 fill-amber-400 text-amber-400 shrink-0" />
                             <span>{currentBanner.badge}</span>
                           </span>
                         )}
                         {currentBanner.title && (
-                          <h4 className="text-base sm:text-2xl font-black leading-snug mb-1.5 line-clamp-2">
+                          <h4
+                            className="text-base sm:text-2xl font-black leading-snug mb-1.5 line-clamp-2 drop-shadow-md"
+                            style={{ textShadow: '0 2px 12px rgba(0, 0, 0, 0.55)' }}
+                          >
                             {currentBanner.title}
                           </h4>
                         )}
                         {currentBanner.subtitle && (
-                          <p className="hidden sm:block text-xs text-slate-100/95 mb-3.5 line-clamp-2">
+                          <p
+                            className="hidden sm:block text-xs text-white/95 font-medium mb-3.5 line-clamp-2 drop-shadow"
+                            style={{ textShadow: '0 1px 8px rgba(0, 0, 0, 0.5)' }}
+                          >
                             {currentBanner.subtitle}
                           </p>
                         )}
                         {currentBanner.ctaLabel && (
                           <div>
-                            <span className="inline-flex items-center gap-1.5 bg-[#e00000] text-white font-extrabold text-xs px-4 py-2 rounded-lg shadow-md">
+                            <span className="inline-flex items-center gap-1.5 bg-[#e00000] text-white font-extrabold text-xs px-4 py-2 rounded-lg shadow-lg">
                               <span>{currentBanner.ctaLabel}</span>
                               <ArrowLeft className="w-3.5 h-3.5" />
                             </span>
@@ -818,7 +842,8 @@ export default function AdminBannersPage() {
                       <div className="flex flex-wrap gap-2">
                         {OVERLAY_OPTIONS.map((opt) => {
                           const selected =
-                            (currentBanner.overlayTheme || 'dark') === opt.value;
+                            (currentBanner.overlayTheme || 'light_scrim') ===
+                            opt.value;
                           return (
                             <button
                               key={opt.value}

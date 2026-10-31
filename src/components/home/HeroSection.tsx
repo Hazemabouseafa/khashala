@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronRight, ChevronLeft, Star, ArrowLeft } from 'lucide-react';
 import {
   BANNER_OVERLAY_CLASSES,
+  BANNER_OVERLAY_STYLES,
   DEFAULT_HOME_BANNERS,
   HomeBannerItem,
 } from '@/lib/banners';
@@ -66,9 +67,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ initialBanners }) => {
 
   const safeIndex = activeSlide < activeBanners.length ? activeSlide : 0;
   const current = activeBanners[safeIndex];
+  const themeKey = current.overlayTheme || 'light_scrim';
   const overlayClass =
-    BANNER_OVERLAY_CLASSES[current.overlayTheme || 'dark'] ||
-    BANNER_OVERLAY_CLASSES.dark;
+    BANNER_OVERLAY_CLASSES[themeKey] || BANNER_OVERLAY_CLASSES.light_scrim;
+  const overlayStyle =
+    BANNER_OVERLAY_STYLES[themeKey] ?? BANNER_OVERLAY_STYLES.light_scrim;
 
   const goPrev = () => {
     setActiveSlide((prev) =>
@@ -119,31 +122,51 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ initialBanners }) => {
             />
           </Link>
         ) : (
-          /* Poster Image + Customizable Text & Action Button */
+          /* Poster Image + Subtle Scrim & Crisp Text */
           <>
             <img
               src={current.image}
               alt={current.title || 'بوستر خشاله'}
               className="absolute inset-0 w-full h-full object-cover transition-all duration-500"
             />
-            <div className={`absolute inset-0 ${overlayClass}`} />
+            {themeKey !== 'none' && (
+              <>
+                <div
+                  className={`absolute inset-0 pointer-events-none ${overlayClass}`}
+                  style={{ backgroundImage: overlayStyle }}
+                />
+                <div
+                  className="absolute inset-x-0 bottom-0 h-16 pointer-events-none"
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(to top, rgba(0,0,0,0.32) 0%, transparent 100%)',
+                  }}
+                />
+              </>
+            )}
 
             <div className="relative z-10 h-full flex flex-col justify-center px-5 sm:px-10 lg:px-14 max-w-2xl text-white">
               {current.badge && (
-                <span className="inline-flex items-center gap-1.5 self-start text-[10px] sm:text-xs font-extrabold bg-white/15 backdrop-blur-xs px-2.5 py-1 rounded-md mb-2 sm:mb-3 border border-white/20">
+                <span className="inline-flex items-center gap-1.5 self-start text-[10px] sm:text-xs font-extrabold bg-black/35 backdrop-blur-sm px-2.5 py-1 rounded-md mb-2 sm:mb-3 border border-white/25 shadow-sm">
                   <Star className="w-3 h-3 fill-amber-400 text-amber-400 shrink-0" />
                   <span>{current.badge}</span>
                 </span>
               )}
 
               {current.title && (
-                <h1 className="text-base sm:text-2xl lg:text-3xl font-black leading-snug mb-1.5 sm:mb-2.5 line-clamp-2 drop-shadow-xs">
+                <h1
+                  className="text-base sm:text-2xl lg:text-3xl font-black leading-snug mb-1.5 sm:mb-2.5 line-clamp-2 drop-shadow-md"
+                  style={{ textShadow: '0 2px 12px rgba(0, 0, 0, 0.55)' }}
+                >
                   {current.title}
                 </h1>
               )}
 
               {current.subtitle && (
-                <p className="hidden sm:block text-xs sm:text-sm text-slate-100/95 mb-4 line-clamp-2">
+                <p
+                  className="hidden sm:block text-xs sm:text-sm text-white/95 font-medium mb-4 line-clamp-2 drop-shadow"
+                  style={{ textShadow: '0 1px 8px rgba(0, 0, 0, 0.5)' }}
+                >
                   {current.subtitle}
                 </p>
               )}
@@ -152,7 +175,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ initialBanners }) => {
                 <div className="flex items-center gap-2.5 mt-1 sm:mt-0">
                   <Link
                     href={current.ctaHref || '/ads'}
-                    className="inline-flex items-center gap-1.5 bg-[#e00000] hover:bg-[#c20000] text-white font-extrabold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg shadow-md transition-colors"
+                    className="inline-flex items-center gap-1.5 bg-[#e00000] hover:bg-[#c20000] text-white font-extrabold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg shadow-lg transition-colors"
                   >
                     <span>{current.ctaLabel}</span>
                     <ArrowLeft className="w-3.5 h-3.5" />

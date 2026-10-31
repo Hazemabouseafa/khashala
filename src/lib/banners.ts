@@ -6,17 +6,29 @@ export interface HomeBannerItem {
   ctaLabel: string;
   ctaHref: string;
   image: string;
-  overlayTheme: 'dark' | 'crimson' | 'slate' | 'light_scrim' | 'none';
+  overlayTheme: 'light_scrim' | 'dark' | 'crimson' | 'slate' | 'none';
   displayMode: 'with_text' | 'image_only';
   isActive: boolean;
 }
 
 export const BANNER_OVERLAY_CLASSES: Record<HomeBannerItem['overlayTheme'], string> = {
-  dark: 'bg-gradient-to-l from-[#111827]/90 via-[#111827]/70 to-black/25',
-  crimson: 'bg-gradient-to-l from-[#7f1d1d]/90 via-[#991b1b]/75 to-[#111827]/40',
-  slate: 'bg-gradient-to-l from-[#1f2937]/90 via-[#1e293b]/70 to-transparent',
-  light_scrim: 'bg-gradient-to-l from-black/55 via-black/30 to-transparent',
+  light_scrim: 'bg-gradient-to-l from-black/55 via-black/35 to-black/15',
+  dark: 'bg-gradient-to-l from-slate-950/65 via-slate-900/40 to-black/20',
+  crimson: 'bg-gradient-to-l from-red-950/60 via-black/40 to-black/15',
+  slate: 'bg-gradient-to-l from-slate-900/60 via-slate-800/35 to-black/15',
   none: 'bg-transparent',
+};
+
+export const BANNER_OVERLAY_STYLES: Record<HomeBannerItem['overlayTheme'], string> = {
+  light_scrim:
+    'linear-gradient(to left, rgba(0, 0, 0, 0.56) 0%, rgba(0, 0, 0, 0.34) 52%, rgba(0, 0, 0, 0.16) 100%)',
+  dark:
+    'linear-gradient(to left, rgba(15, 23, 42, 0.66) 0%, rgba(15, 23, 42, 0.42) 55%, rgba(0, 0, 0, 0.20) 100%)',
+  crimson:
+    'linear-gradient(to left, rgba(105, 18, 18, 0.60) 0%, rgba(17, 24, 39, 0.38) 55%, rgba(0, 0, 0, 0.16) 100%)',
+  slate:
+    'linear-gradient(to left, rgba(30, 41, 59, 0.62) 0%, rgba(30, 41, 59, 0.36) 55%, rgba(0, 0, 0, 0.15) 100%)',
+  none: 'none',
 };
 
 export const DEFAULT_HOME_BANNERS: HomeBannerItem[] = [
@@ -29,7 +41,7 @@ export const DEFAULT_HOME_BANNERS: HomeBannerItem[] = [
     ctaHref: '/ads?category=vehicles',
     image:
       'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1400&q=80&auto=format&fit=crop',
-    overlayTheme: 'crimson',
+    overlayTheme: 'light_scrim',
     displayMode: 'with_text',
     isActive: true,
   },
@@ -42,7 +54,7 @@ export const DEFAULT_HOME_BANNERS: HomeBannerItem[] = [
     ctaHref: '/ads?category=real-estate',
     image:
       'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1400&q=80&auto=format&fit=crop',
-    overlayTheme: 'dark',
+    overlayTheme: 'light_scrim',
     displayMode: 'with_text',
     isActive: true,
   },
@@ -56,7 +68,7 @@ export const DEFAULT_HOME_BANNERS: HomeBannerItem[] = [
     ctaHref: '/ads/create',
     image:
       'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1400&q=80&auto=format&fit=crop',
-    overlayTheme: 'crimson',
+    overlayTheme: 'light_scrim',
     displayMode: 'with_text',
     isActive: true,
   },
@@ -85,7 +97,7 @@ export function parseHomeBanners(rawValue?: string | null): HomeBannerItem[] {
       overlayTheme:
         item.overlayTheme && item.overlayTheme in BANNER_OVERLAY_CLASSES
           ? item.overlayTheme
-          : 'dark',
+          : 'light_scrim',
       displayMode: item.displayMode === 'image_only' ? 'image_only' : 'with_text',
       isActive: item.isActive !== false,
     }));

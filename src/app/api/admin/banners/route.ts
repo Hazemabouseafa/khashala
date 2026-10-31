@@ -76,10 +76,10 @@ export async function POST(req: NextRequest) {
         overlayTheme:
           item.overlayTheme === 'crimson' ||
           item.overlayTheme === 'slate' ||
-          item.overlayTheme === 'light_scrim' ||
+          item.overlayTheme === 'dark' ||
           item.overlayTheme === 'none'
             ? item.overlayTheme
-            : 'dark',
+            : 'light_scrim',
         displayMode: item.displayMode === 'image_only' ? 'image_only' : 'with_text',
         isActive: item.isActive !== false,
       })

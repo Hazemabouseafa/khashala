@@ -97,6 +97,7 @@ export default async function RootLayout({
     <html
       lang="ar"
       dir="rtl"
+      suppressHydrationWarning
       style={
         {
           '--platform-icon-color': initialBranding.iconColor,
@@ -112,7 +113,10 @@ export default async function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-arabic antialiased flex flex-col min-h-screen bg-[#f7f8fa] text-[#222222]">
+      <body
+        suppressHydrationWarning
+        className="font-arabic antialiased flex flex-col min-h-screen bg-[#f7f8fa] text-[#222222]"
+      >
         <BrandingProvider initialBranding={initialBranding}>
           <Header />
           <main className="flex-1 pb-20 md:pb-0">{children}</main>

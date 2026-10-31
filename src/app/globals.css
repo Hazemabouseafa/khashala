@@ -112,3 +112,31 @@ body {
   animation: shimmer 1.8s infinite;
   content: '';
 }
+
+/* Google Translate Clean Integration (Hide default Google top banner & tooltips) */
+iframe.goog-te-banner-frame,
+.goog-te-banner-frame,
+.skiptranslate > iframe,
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+}
+
+body {
+  top: 0px !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.google-translate-container {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+

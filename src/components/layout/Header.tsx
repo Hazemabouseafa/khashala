@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { KhashalaLogo } from '@/components/ui/KhashalaLogo';
 import { CategoryIcon } from '@/components/ui/CategoryIcon';
+import { TopTranslateBar } from '@/components/layout/TopTranslateBar';
 import { ARAB_COUNTRIES, CATEGORIES_DATA } from '@/lib/constants';
 
 interface UserState {
@@ -205,13 +206,11 @@ function HeaderInner() {
 
   return (
     <>
-      {/* Optional Announcement Strip */}
-      {!isAdminRoute && announcement?.active && announcement.text && (
-        <div className="bg-[#1f2937] text-white text-[11px] sm:text-xs font-bold py-1.5 px-4 text-center flex items-center justify-center gap-2">
-          <Megaphone className="w-3.5 h-3.5 text-[#ef4444] shrink-0" />
-          <span className="truncate">{announcement.text}</span>
-        </div>
-      )}
+      {/* Top Bar: Google Translate (Arabic <-> English) + Optional Announcement */}
+      <TopTranslateBar
+        showAnnouncement={!isAdminRoute && Boolean(announcement?.active)}
+        announcementText={announcement?.text}
+      />
 
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200/95 shadow-[0_1px_6px_rgba(15,23,42,0.04)]">
         {/* ==================== MAIN TOP BAR ==================== */}

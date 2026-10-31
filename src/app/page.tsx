@@ -5,6 +5,7 @@ import { CategoryGrid } from '@/components/home/CategoryGrid';
 import { AdCard } from '@/components/ads/AdCard';
 import { prisma } from '@/lib/prisma';
 import { ensureSampleDataSeeded } from '@/lib/auto-seed';
+import { parseHomeBanners } from '@/lib/banners';
 import { ArrowLeft, Star, Plus } from 'lucide-react';
 
 export const revalidate = 0;
@@ -39,7 +40,8 @@ async function getHomeMarketplaceData() {
       user: { select: { id: true, name: true, phone: true } },
     };
 
-    const [featuredRaw, latestRaw, ...shelfResults] = await Promise.all([
+    const [bannersSetting, featuredRaw, latestRaw, ...shelfResults] = await Promise.all([
+      prisma.platformSetting.findUnique({ where: { key: 'homeBanners' } }),
       prisma.ad.findMany({
         where: { status: 'ACTIVE' as any, isFeatured: true },
         orderBy: { createdAt: 'desc' },
@@ -71,23 +73,24 @@ async function getHomeMarketplaceData() {
     })).filter((s) => s.ads.length > 0);
 
     return {
+      homeBanners: parseHomeBanners(bannersSetting?.value),
       featuredAds: normalizeAds(featuredRaw),
       latestAds: normalizeAds(latestRaw),
       shelves,
     };
   } catch (err) {
     console.error('Error loading homepage marketplace data:', err);
-    return { featuredAds: [], latestAds: [], shelves: [] };
+    return { homeBanners: parseHomeBanners(null), featuredAds: [], latestAds: [], shelves: [] };
   }
 }
 
 export default async function HomePage() {
-  const { featuredAds, latestAds, shelves } = await getHomeMarketplaceData();
+  const { homeBanners, featuredAds, latestAds, shelves } = await getHomeMarketplaceData();
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-12">
-      {/* 1. Promotional Banner Slider */}
-      <HeroSection />
+      {/* 1. Promotional Banner Slider (Admin-Managed Posters) */}
+      <HeroSection initialBanners={homeBanners} />
 
       {/* 2. All Categories Horizontal Strip & Subcategory Pills */}
       <CategoryGrid />

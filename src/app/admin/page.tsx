@@ -20,6 +20,7 @@ import {
   BarChart3,
   Settings,
   History,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 export default function AdminOverviewPage() {
@@ -231,8 +232,24 @@ export default function AdminOverviewPage() {
         </div>
       </div>
 
-      {/* Quick Action Navigation Grid (6 Enterprise Admin Modules) */}
+      {/* Quick Action Navigation Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <Link
+          href="/admin/banners"
+          className="bg-gradient-to-l from-[#b91c1c] to-[#e00000] text-white p-5 rounded-3xl shadow-sm hover:shadow-md transition-all flex items-center justify-between group"
+        >
+          <div className="space-y-1">
+            <h3 className="text-sm font-black flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-amber-200" />
+              <span>بوسترات الصفحة الرئيسية</span>
+            </h3>
+            <p className="text-[11px] text-red-100">
+              إضافة بوسترات، رفع صور، وتعديل النصوص والأزرار
+            </p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-white group-hover:-translate-x-1 transition-transform" />
+        </Link>
+
         <Link
           href="/admin/ads"
           className="bg-gradient-to-l from-navy-900 to-blue-900 text-white p-5 rounded-3xl shadow-sm hover:shadow-md transition-all flex items-center justify-between group"

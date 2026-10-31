@@ -17,6 +17,7 @@ import {
   BarChart3,
   Settings,
   History,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { KhashalaLogo } from '@/components/ui/KhashalaLogo';
 
@@ -89,6 +90,7 @@ export default function AdminLayout({
 
   const navItems = [
     { name: 'لوحة الإحصائيات العامة', href: '/admin', icon: LayoutDashboard },
+    { name: 'بوسترات الصفحة الرئيسية', href: '/admin/banners', icon: ImageIcon },
     { name: 'فلترة ومراجعة الإعلانات', href: '/admin/ads', icon: CheckSquare },
     { name: 'الأقسام والأقسام الفرعية', href: '/admin/categories', icon: Layers },
     { name: 'إدارة المستخدمين والحظر', href: '/admin/users', icon: Users },

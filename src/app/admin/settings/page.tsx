@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import {
   Settings,
   Megaphone,
@@ -236,6 +237,29 @@ export default function AdminSettingsPage() {
       )}
 
       <form onSubmit={handleSave} className="space-y-6">
+        {/* Quick Shortcut to Homepage Posters Studio */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-l from-[#111827] to-[#1f2937] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#e00000] flex items-center justify-center shrink-0">
+              <ImageIcon className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black">
+                بوسترات وبنرات الصفحة الرئيسية المتحركة
+              </h3>
+              <p className="text-xs text-slate-300 mt-0.5">
+                أضف بوسترات جديدة، ارفع صورك الخاصة، وعدّل الكتابة والأزرار والروابط من استوديو البوسترات المخصص
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/admin/banners"
+            className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-[#e00000] hover:bg-[#c20000] text-white text-xs font-extrabold transition-colors shrink-0"
+          >
+            فتح استوديو البوسترات ←
+          </Link>
+        </div>
+
         {/* ========================================================================= */}
         {/* SECTION 0: VISUAL BRANDING STUDIO (LOGO UPLOADER + ICON COLORS) */}
         {/* ========================================================================= */}

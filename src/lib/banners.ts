@@ -11,6 +11,8 @@ export interface HomeBannerItem {
   isActive: boolean;
 }
 
+export type BannerPlacement = 'top' | 'after_categories';
+
 export const BANNER_OVERLAY_CLASSES: Record<HomeBannerItem['overlayTheme'], string> = {
   light_scrim: 'bg-gradient-to-l from-black/55 via-black/35 to-black/15',
   dark: 'bg-gradient-to-l from-slate-950/65 via-slate-900/40 to-black/20',
@@ -74,26 +76,75 @@ export const DEFAULT_HOME_BANNERS: HomeBannerItem[] = [
   },
 ];
 
-export function parseHomeBanners(rawValue?: string | null): HomeBannerItem[] {
+export const DEFAULT_SECONDARY_BANNERS: HomeBannerItem[] = [
+  {
+    id: 'sec-banner-electronics',
+    badge: 'أحدث الهواتف والإلكترونيات',
+    title: 'آيفون، لابتوبات، شاشات ذكية وأجهزة ألعاب بأقوى العروض',
+    subtitle: 'تصفح مئات الأجهزة الجديدة والمستعملة بحالة ممتازة وتواصل مباشرة مع البائع',
+    ctaLabel: 'تصفح الإلكترونيات',
+    ctaHref: '/ads?category=electronics',
+    image:
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1400&q=80&auto=format&fit=crop',
+    overlayTheme: 'light_scrim',
+    displayMode: 'with_text',
+    isActive: true,
+  },
+  {
+    id: 'sec-banner-furniture',
+    badge: 'أثاث وديكور ومستلزمات المنزل',
+    title: 'جدّد بيتك بأرقى غرف المعيشة والأثاث العصري والأجهزة المنزلية',
+    subtitle: 'عروض يومية متجددة على الأثاث المنزلي والمكتبي في منطقتك وبأسعار تنافسية',
+    ctaLabel: 'تصفح الأثاث والديكور',
+    ctaHref: '/ads?category=furniture',
+    image:
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1400&q=80&auto=format&fit=crop',
+    overlayTheme: 'light_scrim',
+    displayMode: 'with_text',
+    isActive: true,
+  },
+  {
+    id: 'sec-banner-featured',
+    badge: 'ضاعف مبيعاتك 10 مرات',
+    title: 'ميّز إعلانك ليظهر في أول القسم ويصل لآلاف المشترين يومياً',
+    subtitle: 'خدمة تمييز الإعلانات السريعة تمنح إعلانك شارة التميز والأولوية القصوى في الظهور',
+    ctaLabel: 'تصفح الإعلانات المميزة',
+    ctaHref: '/ads?isFeatured=true',
+    image:
+      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1400&q=80&auto=format&fit=crop',
+    overlayTheme: 'light_scrim',
+    displayMode: 'with_text',
+    isActive: true,
+  },
+];
+
+function parseBannerArray(
+  rawValue: string | null | undefined,
+  fallback: HomeBannerItem[],
+  idPrefix: string
+): HomeBannerItem[] {
   if (!rawValue || !rawValue.trim()) {
-    return DEFAULT_HOME_BANNERS;
+    return fallback;
   }
   try {
     const parsed = JSON.parse(rawValue);
     if (!Array.isArray(parsed)) {
-      return DEFAULT_HOME_BANNERS;
+      return fallback;
     }
     return parsed.map((item: any, index: number) => ({
-      id: String(item.id || `banner-${index + 1}`),
+      id: String(item.id || `${idPrefix}-${index + 1}`),
       badge: typeof item.badge === 'string' ? item.badge : '',
       title: typeof item.title === 'string' ? item.title : '',
       subtitle: typeof item.subtitle === 'string' ? item.subtitle : '',
       ctaLabel: typeof item.ctaLabel === 'string' ? item.ctaLabel : '',
-      ctaHref: typeof item.ctaHref === 'string' && item.ctaHref.trim() ? item.ctaHref.trim() : '/ads',
+      ctaHref:
+        typeof item.ctaHref === 'string' && item.ctaHref.trim()
+          ? item.ctaHref.trim()
+          : '/ads',
       image:
         typeof item.image === 'string' && item.image.trim()
           ? item.image.trim()
-          : DEFAULT_HOME_BANNERS[0].image,
+          : fallback[0]?.image || DEFAULT_HOME_BANNERS[0].image,
       overlayTheme:
         item.overlayTheme && item.overlayTheme in BANNER_OVERLAY_CLASSES
           ? item.overlayTheme
@@ -102,6 +153,16 @@ export function parseHomeBanners(rawValue?: string | null): HomeBannerItem[] {
       isActive: item.isActive !== false,
     }));
   } catch {
-    return DEFAULT_HOME_BANNERS;
+    return fallback;
   }
+}
+
+export function parseHomeBanners(rawValue?: string | null): HomeBannerItem[] {
+  return parseBannerArray(rawValue, DEFAULT_HOME_BANNERS, 'banner');
+}
+
+export function parseSecondaryHomeBanners(
+  rawValue?: string | null
+): HomeBannerItem[] {
+  return parseBannerArray(rawValue, DEFAULT_SECONDARY_BANNERS, 'sec-banner');
 }

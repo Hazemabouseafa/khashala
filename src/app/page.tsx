@@ -5,7 +5,10 @@ import { CategoryGrid } from '@/components/home/CategoryGrid';
 import { AdCard } from '@/components/ads/AdCard';
 import { prisma } from '@/lib/prisma';
 import { ensureSampleDataSeeded } from '@/lib/auto-seed';
-import { parseHomeBanners } from '@/lib/banners';
+import {
+  parseHomeBanners,
+  parseSecondaryHomeBanners,
+} from '@/lib/banners';
 import { ArrowLeft, Star, Plus } from 'lucide-react';
 
 export const revalidate = 0;
@@ -40,8 +43,17 @@ async function getHomeMarketplaceData() {
       user: { select: { id: true, name: true, phone: true } },
     };
 
-    const [bannersSetting, featuredRaw, latestRaw, ...shelfResults] = await Promise.all([
+    const [
+      bannersSetting,
+      secondaryBannersSetting,
+      featuredRaw,
+      latestRaw,
+      ...shelfResults
+    ] = await Promise.all([
       prisma.platformSetting.findUnique({ where: { key: 'homeBanners' } }),
+      prisma.platformSetting.findUnique({
+        where: { key: 'homeSecondaryBanners' },
+      }),
       prisma.ad.findMany({
         where: { status: 'ACTIVE' as any, isFeatured: true },
         orderBy: { createdAt: 'desc' },
@@ -74,26 +86,42 @@ async function getHomeMarketplaceData() {
 
     return {
       homeBanners: parseHomeBanners(bannersSetting?.value),
+      secondaryBanners: parseSecondaryHomeBanners(
+        secondaryBannersSetting?.value
+      ),
       featuredAds: normalizeAds(featuredRaw),
       latestAds: normalizeAds(latestRaw),
       shelves,
     };
   } catch (err) {
     console.error('Error loading homepage marketplace data:', err);
-    return { homeBanners: parseHomeBanners(null), featuredAds: [], latestAds: [], shelves: [] };
+    return {
+      homeBanners: parseHomeBanners(null),
+      secondaryBanners: parseSecondaryHomeBanners(null),
+      featuredAds: [],
+      latestAds: [],
+      shelves: [],
+    };
   }
 }
 
 export default async function HomePage() {
-  const { homeBanners, featuredAds, latestAds, shelves } = await getHomeMarketplaceData();
+  const { homeBanners, secondaryBanners, featuredAds, latestAds, shelves } =
+    await getHomeMarketplaceData();
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-12">
-      {/* 1. Promotional Banner Slider (Admin-Managed Posters) */}
-      <HeroSection initialBanners={homeBanners} />
+      {/* 1. First Promotional Banner Slider (Before All Categories) */}
+      <HeroSection initialBanners={homeBanners} placement="top" />
 
       {/* 2. All Categories Horizontal Strip & Subcategory Pills */}
       <CategoryGrid />
+
+      {/* 2b. Second Promotional Banner Slider (Right After All Categories) */}
+      <HeroSection
+        initialBanners={secondaryBanners}
+        placement="after_categories"
+      />
 
       {/* 3. Featured VIP Ads Horizontal Shelf */}
       {featuredAds.length > 0 && (

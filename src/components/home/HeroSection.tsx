@@ -6,17 +6,28 @@ import { ChevronRight, ChevronLeft, Star, ArrowLeft } from 'lucide-react';
 import {
   BANNER_OVERLAY_CLASSES,
   BANNER_OVERLAY_STYLES,
+  BannerPlacement,
   DEFAULT_HOME_BANNERS,
+  DEFAULT_SECONDARY_BANNERS,
   HomeBannerItem,
 } from '@/lib/banners';
 
 interface HeroSectionProps {
   initialBanners?: HomeBannerItem[];
+  placement?: BannerPlacement;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ initialBanners }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({
+  initialBanners,
+  placement = 'top',
+}) => {
+  const defaultList =
+    placement === 'after_categories'
+      ? DEFAULT_SECONDARY_BANNERS
+      : DEFAULT_HOME_BANNERS;
+
   const [banners, setBanners] = useState<HomeBannerItem[]>(
-    initialBanners !== undefined ? initialBanners : DEFAULT_HOME_BANNERS
+    initialBanners !== undefined ? initialBanners : defaultList
   );
   const [activeSlide, setActiveSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -33,8 +44,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ initialBanners }) => {
       try {
         const res = await fetch('/api/admin/banners', { cache: 'no-store' });
         const data = await res.json();
-        if (Array.isArray(data.banners)) {
-          setBanners(data.banners);
+        const targetList =
+          placement === 'after_categories'
+            ? data.secondaryBanners
+            : data.banners;
+        if (Array.isArray(targetList)) {
+          setBanners(targetList);
         }
       } catch {}
     };
@@ -43,7 +58,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ initialBanners }) => {
     return () => {
       window.removeEventListener('khashala_banners_updated', refreshFromApi);
     };
-  }, []);
+  }, [placement]);
 
   const activeBanners = banners.filter((b) => b.isActive !== false);
 
@@ -55,11 +70,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ initialBanners }) => {
 
   useEffect(() => {
     if (activeBanners.length <= 1 || isPaused) return;
+    const intervalMs = placement === 'after_categories' ? 6200 : 5500;
     const timer = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % activeBanners.length);
-    }, 5500);
+    }, intervalMs);
     return () => clearInterval(timer);
-  }, [activeBanners.length, isPaused]);
+  }, [activeBanners.length, isPaused, placement]);
 
   if (activeBanners.length === 0) {
     return null;
@@ -92,7 +108,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ initialBanners }) => {
     const diff = e.changedTouches[0].clientX - touchStartX.current;
     touchStartX.current = null;
     if (Math.abs(diff) < 40) return;
-    // In RTL: swiping right/left switches slides intuitively
     if (diff > 0) {
       goNext();
     } else {
@@ -101,7 +116,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ initialBanners }) => {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-5">
+    <section
+      className={`max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 ${
+        placement === 'top' ? 'pt-3 sm:pt-5' : 'pt-1'
+      }`}
+    >
       <div
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
@@ -154,12 +173,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ initialBanners }) => {
               )}
 
               {current.title && (
-                <h1
+                <h2
                   className="text-base sm:text-2xl lg:text-3xl font-black leading-snug mb-1.5 sm:mb-2.5 line-clamp-2 drop-shadow-md"
                   style={{ textShadow: '0 2px 12px rgba(0, 0, 0, 0.55)' }}
                 >
                   {current.title}
-                </h1>
+                </h2>
               )}
 
               {current.subtitle && (

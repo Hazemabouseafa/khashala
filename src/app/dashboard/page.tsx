@@ -164,8 +164,8 @@ function DashboardContent() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Profile & KPI Header */}
-      <div className="bg-white rounded-3xl border border-blue-200/90 p-6 sm:p-8 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-blue-100">
+      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-200">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-600 to-navy-900 text-white font-black text-2xl flex items-center justify-center shadow-md">
               {user?.name ? user.name.charAt(0) : 'م'}
@@ -185,16 +185,16 @@ function DashboardContent() {
 
           <Link
             href="/ads/create"
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-600 to-blue-600 hover:from-brand-700 hover:to-blue-700 text-white font-bold text-sm rounded-2xl shadow-md shadow-brand-600/20 transition-all active:scale-95"
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-[#e00000] hover:bg-[#c20000] text-white font-extrabold text-sm rounded-xl shadow-xs transition-all active:scale-95"
           >
             <PlusCircle className="w-4 h-4 stroke-[2.5]" />
-            <span>نشر إعلان جديد</span>
+            <span>أضف إعلانك</span>
           </Link>
         </div>
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
-          <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
+          <div className="bg-[#f7f8fa] p-4 rounded-2xl border border-slate-200">
             <span className="text-xs font-semibold text-slate-500 block mb-1">
               إجمالي إعلاناتي
             </span>
@@ -212,7 +212,7 @@ function DashboardContent() {
             </span>
             <span className="text-2xl font-black text-amber-800">{pendingAdsCount}</span>
           </div>
-          <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
+          <div className="bg-[#f7f8fa] p-4 rounded-2xl border border-slate-200">
             <span className="text-xs font-semibold text-slate-600 block mb-1">
               إعلانات مباعة
             </span>
@@ -234,7 +234,7 @@ function DashboardContent() {
       )}
 
       {/* Full Filtering Bar for User Ads */}
-      <div className="bg-white rounded-3xl border border-blue-200/90 p-5 shadow-xs space-y-4">
+      <div className="bg-white rounded-3xl border border-slate-200 p-5 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-black text-slate-900 flex items-center gap-2">
             <Filter className="w-4 h-4 text-brand-600" />
@@ -262,7 +262,7 @@ function DashboardContent() {
               placeholder="ابحث بالعنوان أو المدينة..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-blue-50/40 text-xs rounded-xl pr-8 pl-3 py-2.5 border border-blue-200 focus:outline-none focus:border-brand-500"
+              className="w-full bg-[#f7f8fa] text-xs rounded-xl pr-8 pl-3 py-2.5 border border-slate-200 focus:outline-none focus:border-brand-500"
             />
             <Search className="w-3.5 h-3.5 text-brand-500 absolute right-2.5 top-3" />
           </div>
@@ -270,7 +270,7 @@ function DashboardContent() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-blue-50/40 text-xs font-bold text-slate-700 rounded-xl px-3 py-2.5 border border-blue-200 focus:outline-none"
+            className="bg-[#f7f8fa] text-xs font-bold text-slate-700 rounded-xl px-3 py-2.5 border border-slate-200 focus:outline-none"
           >
             <option value="ALL">جميع الحالات</option>
             <option value="ACTIVE">نشط</option>
@@ -285,7 +285,7 @@ function DashboardContent() {
               setCategoryFilter(e.target.value);
               setSubcategoryFilter('ALL');
             }}
-            className="bg-blue-50/40 text-xs font-bold text-slate-700 rounded-xl px-3 py-2.5 border border-blue-200 focus:outline-none"
+            className="bg-[#f7f8fa] text-xs font-bold text-slate-700 rounded-xl px-3 py-2.5 border border-slate-200 focus:outline-none"
           >
             <option value="ALL">جميع الأقسام الرئيسية</option>
             {categories.map((cat) => (
@@ -298,7 +298,7 @@ function DashboardContent() {
           <select
             value={subcategoryFilter}
             onChange={(e) => setSubcategoryFilter(e.target.value)}
-            className="bg-blue-50/40 text-xs font-bold text-slate-700 rounded-xl px-3 py-2.5 border border-blue-200 focus:outline-none"
+            className="bg-[#f7f8fa] text-xs font-bold text-slate-700 rounded-xl px-3 py-2.5 border border-slate-200 focus:outline-none"
           >
             <option value="ALL">جميع الأقسام الفرعية</option>
             {availableSubcategories.map((sub: any) => (
@@ -311,7 +311,7 @@ function DashboardContent() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-blue-50/40 text-xs font-bold text-slate-700 rounded-xl px-3 py-2.5 border border-blue-200 focus:outline-none"
+            className="bg-[#f7f8fa] text-xs font-bold text-slate-700 rounded-xl px-3 py-2.5 border border-slate-200 focus:outline-none"
           >
             <option value="newest">الأحدث أولاً</option>
             <option value="price_asc">الأقل سعراً</option>
@@ -336,14 +336,14 @@ function DashboardContent() {
               return (
                 <div
                   key={ad.id}
-                  className="bg-white rounded-2xl border border-blue-200/80 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-brand-300 transition-colors"
+                  className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-brand-300 transition-colors"
                 >
                   {/* Thumbnail & Title */}
                   <div className="flex items-center gap-4 flex-1">
                     <img
                       src={adImage}
                       alt={ad.title}
-                      className="w-20 h-20 rounded-xl object-cover border border-blue-200 shrink-0 bg-blue-50"
+                      className="w-20 h-20 rounded-xl object-cover border border-slate-200 shrink-0 bg-[#f7f8fa]"
                     />
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -353,7 +353,7 @@ function DashboardContent() {
                           {statusInfo.label}
                         </span>
                         {ad.category && (
-                          <span className="text-[10px] font-bold text-brand-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                          <span className="text-[10px] font-bold text-brand-700 bg-[#f7f8fa] px-2 py-0.5 rounded-md border border-slate-200">
                             {ad.category.name}
                             {ad.subcategory ? ` / ${ad.subcategory.name}` : ''}
                           </span>
@@ -376,7 +376,7 @@ function DashboardContent() {
                   </div>
 
                   {/* Actions Buttons */}
-                  <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto w-full sm:w-auto justify-end pt-3 sm:pt-0 border-t sm:border-t-0 border-blue-100">
+                  <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto w-full sm:w-auto justify-end pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-200">
                     {/* Paymob Featured Status or Upgrade Button */}
                     {ad.isFeatured ? (
                       <span className="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black flex items-center gap-1 shadow-2xs">
@@ -397,7 +397,7 @@ function DashboardContent() {
 
                     <Link
                       href={`/ads/${ad.id}`}
-                      className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-brand-700 text-xs font-bold flex items-center gap-1 transition-colors"
+                      className="p-2 rounded-xl bg-[#f7f8fa] hover:bg-blue-100 text-brand-700 text-xs font-bold flex items-center gap-1 transition-colors"
                       title="عرض الإعلان"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -459,7 +459,7 @@ function DashboardContent() {
             })}
           </div>
         ) : (
-          <div className="bg-white rounded-3xl border border-blue-200 p-12 text-center">
+          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center">
             <p className="text-sm font-semibold text-slate-500 mb-4">
               لا توجد إعلانات مطابقة حالياً.
             </p>

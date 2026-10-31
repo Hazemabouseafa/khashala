@@ -590,11 +590,36 @@ export const STATUS_LABELS: Record<string, { label: string; color: string; bg: s
 };
 
 export const CONDITION_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  NEW: { label: 'جديد تماماً (وكالة)', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
-  LIKE_NEW: { label: 'مستعمل - كالجديد', color: 'text-sky-700', bg: 'bg-sky-50 border-sky-200' },
-  USED_GOOD: { label: 'مستعمل بحالة جيدة', color: 'text-indigo-700', bg: 'bg-indigo-50 border-indigo-200' },
-  NA: { label: 'لا ينطبق', color: 'text-slate-600', bg: 'bg-slate-50 border-slate-200' },
+  NEW: { label: 'جديد', color: 'text-emerald-700 border-emerald-200 bg-emerald-50', bg: 'bg-emerald-50 border-emerald-200' },
+  LIKE_NEW: { label: 'مستعمل - كالجديد', color: 'text-slate-700 border-slate-200 bg-slate-100', bg: 'bg-slate-100 border-slate-200' },
+  USED_GOOD: { label: 'مستعمل بحالة جيدة', color: 'text-slate-600 border-slate-200 bg-slate-50', bg: 'bg-slate-50 border-slate-200' },
+  NA: { label: 'لا ينطبق', color: 'text-slate-500 border-slate-200 bg-slate-50', bg: 'bg-slate-50 border-slate-200' },
 };
+
+export function formatRelativeTimeAr(dateInput?: string | Date): string {
+  if (!dateInput) return 'اليوم';
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  if (isNaN(date.getTime())) return 'اليوم';
+
+  const diffMs = Date.now() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 5) return 'الآن';
+  if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
+
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours === 1) return 'منذ ساعة';
+  if (diffHours === 2) return 'منذ ساعتين';
+  if (diffHours <= 10) return `منذ ${diffHours} ساعات`;
+  if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays === 1) return 'أمس';
+  if (diffDays === 2) return 'منذ يومين';
+  if (diffDays <= 10) return `منذ ${diffDays} أيام`;
+  if (diffDays < 30) return `منذ ${diffDays} يوماً`;
+
+  return date.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
+}
 
 export const AVAILABLE_ICONS = [
   'Car',

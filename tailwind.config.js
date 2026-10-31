@@ -9,27 +9,28 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#1d4ed8', // Royal Blue primary
-          700: '#1e40af',
-          800: '#1e3a8a',
-          900: '#172554',
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          300: '#fca5a5',
+          400: '#f87171',
+          500: '#ef4444',
+          600: '#e00000', // Signature Marketplace Crimson Red
+          700: '#b91c1c',
+          800: '#991b1b',
+          900: '#7f1d1d',
         },
         navy: {
-          700: '#1e3a8a',
-          800: '#0f2547', // Deep Sapphire Blue
-          900: '#08162b', // Midnight Ocean Blue
+          700: '#374151',
+          800: '#1f2937',
+          900: '#111827',
+          950: '#0b0f19',
         },
         accent: {
           amber: '#f59e0b',
           gold: '#fbbf24',
           emerald: '#10b981',
-          sky: '#0ea5e9',
+          sky: '#0284c7',
         }
       },
       fontFamily: {

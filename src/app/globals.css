@@ -14,15 +14,20 @@ html {
   direction: rtl;
   font-family: var(--font-cairo);
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 45%, #e0f2fe 100%);
-  background-attachment: fixed;
-  color: #0c1e35;
+  background-color: #f7f8fa;
+  color: #222222;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Safe area padding for mobile sticky bottom bars */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Dynamic Admin-Controlled Platform Icon Theme Classes */
@@ -30,8 +35,8 @@ body {
   background-color: var(--platform-icon-bg);
   color: var(--platform-icon-color);
   border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
-  transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 
 .group:hover .platform-icon-box-hover {
@@ -44,7 +49,7 @@ body {
   background-color: var(--platform-icon-color) !important;
   color: #ffffff !important;
   border-color: var(--platform-icon-color) !important;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.22);
 }
 
 .platform-icon-tint {
@@ -62,20 +67,20 @@ body {
   display: none;
 }
 
-/* Custom Blue Harmonized Scrollbar */
+/* Clean Neutral Marketplace Scrollbar */
 ::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #dbeafe;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #60a5fa;
-  border-radius: 5px;
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2563eb;
+  background: #94a3b8;
 }
 
 /* Shimmer animation for skeletons */
@@ -100,10 +105,10 @@ body {
   background-image: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0,
-    rgba(219, 234, 254, 0.5) 20%,
-    rgba(255, 255, 255, 0.8) 60%,
+    rgba(241, 245, 249, 0.6) 20%,
+    rgba(255, 255, 255, 0.9) 60%,
     rgba(255, 255, 255, 0)
   );
-  animation: shimmer 2s infinite;
+  animation: shimmer 1.8s infinite;
   content: '';
 }

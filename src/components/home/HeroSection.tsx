@@ -1,266 +1,141 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Search, MapPin, Layers, Sparkles, ArrowLeft, Globe } from 'lucide-react';
-import { ARAB_COUNTRIES, CATEGORIES_DATA, getCitiesByCountry } from '@/lib/constants';
+import Link from 'next/link';
+import { ChevronRight, ChevronLeft, Plus, Star, ArrowLeft } from 'lucide-react';
+
+const PROMO_SLIDES = [
+  {
+    id: 'motors',
+    badge: 'سوق السيارات والمركبات',
+    title: 'ابحث عن سيارتك القادمة بأفضل سعر ومباشرة من المالك',
+    subtitle: 'مئات السيارات المفحوصة والجديدة والمستعملة في جميع المدن العربية بدون وسيط',
+    ctaLabel: 'تصفح السيارات الآن',
+    ctaHref: '/ads?category=vehicles',
+    bgClass: 'from-[#1f2937] via-[#111827] to-[#7f1d1d]',
+    image:
+      'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80&auto=format&fit=crop',
+  },
+  {
+    id: 'realestate',
+    badge: 'عقارات للبيع والإيجار',
+    title: 'شقق، فلل، شاليهات ومكاتب تجارية في أرقى الأحياء',
+    subtitle: 'قارن الأسعار وتواصل مع الملاك والمعلنين فوراً عبر الهاتف أو واتساب',
+    ctaLabel: 'استكشف العقارات',
+    ctaHref: '/ads?category=real-estate',
+    bgClass: 'from-[#111827] via-[#1e293b] to-[#991b1b]',
+    image:
+      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1200&q=80&auto=format&fit=crop',
+  },
+  {
+    id: 'sell-fast',
+    badge: 'انشر مجاناً في 60 ثانية',
+    title: 'عندك سيارة أو عقار أو موبايل حابب تبيعه بسرعة؟',
+    subtitle: 'أضف إعلانك مجاناً على خشاله أو ميّزه ليظهر في صدارة القسم ويحقق أعلى المشاهدات',
+    ctaLabel: 'أضف إعلانك مجاناً',
+    ctaHref: '/ads/create',
+    bgClass: 'from-[#b91c1c] via-[#dc2626] to-[#1f2937]',
+    image:
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&q=80&auto=format&fit=crop',
+  },
+];
 
 export const HeroSection: React.FC = () => {
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedSubcategory, setSelectedSubcategory] = useState('');
-  const [liveCategories, setLiveCategories] = useState<any[]>([]);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
-    fetch('/api/categories')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.categories) setLiveCategories(data.categories);
-      })
-      .catch(() => {});
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % PROMO_SLIDES.length);
+    }, 5500);
+    return () => clearInterval(timer);
   }, []);
 
-  const handleCountryChange = (countryName: string) => {
-    setSelectedCountry(countryName);
-    setSelectedCity('');
-  };
-
-  const handleCategoryChange = (catSlug: string) => {
-    setSelectedCategory(catSlug);
-    setSelectedSubcategory('');
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchQuery.trim()) params.append('q', searchQuery.trim());
-    if (selectedCountry && selectedCountry !== 'all') params.append('country', selectedCountry);
-    if (selectedCity && selectedCity !== 'all') params.append('city', selectedCity);
-    if (selectedCategory && selectedCategory !== 'all') params.append('category', selectedCategory);
-    if (selectedSubcategory && selectedSubcategory !== 'all')
-      params.append('subcategory', selectedSubcategory);
-
-    router.push(`/ads?${params.toString()}`);
-  };
-
-  const currentCities = selectedCountry ? getCitiesByCountry(selectedCountry) : [];
-  const categoriesList = liveCategories.length > 0 ? liveCategories : CATEGORIES_DATA;
-  const activeCatObj = liveCategories.find((c) => c.slug === selectedCategory);
-  const currentSubcategories = activeCatObj?.subcategories || [];
+  const current = PROMO_SLIDES[activeSlide];
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-navy-950 via-navy-900 to-brand-800 text-white py-14 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-blue-800/40">
-      {/* Decorative Blue & Cyan Glows */}
-      <div className="absolute top-0 right-1/4 -translate-y-1/2 w-96 h-96 bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/4 translate-y-1/2 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+    <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-5">
+      <div className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-[#111827] h-[178px] sm:h-[240px] lg:h-[280px] shadow-xs border border-slate-200/60">
+        {/* Background Photo + Gradient Overlay */}
+        <img
+          src={current.image}
+          alt={current.title}
+          className="absolute inset-0 w-full h-full object-cover opacity-35 transition-all duration-500"
+        />
+        <div
+          className={`absolute inset-0 bg-gradient-to-l ${current.bgClass} opacity-85`}
+        />
 
-      <div className="max-w-6xl mx-auto relative z-10 text-center">
-        {/* Animated Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/15 backdrop-blur-md border border-sky-400/30 text-xs font-bold text-sky-200 mb-6 shadow-inner"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>منصة خشاله (Khashala) • السوق المبوب الأول في جميع الدول العربية الـ 22</span>
-        </motion.div>
-
-        {/* Animated Title */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
-          className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight sm:leading-tight mb-4"
-        >
-          كل ما تبحث عنه للبيع والشراء، <br className="hidden sm:inline" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-blue-200 to-amber-300">
-            تلقاه فوراً في خشاله
+        {/* Banner Content */}
+        <div className="relative z-10 h-full flex flex-col justify-center px-5 sm:px-10 lg:px-14 max-w-2xl text-white">
+          <span className="inline-flex items-center gap-1.5 self-start text-[10px] sm:text-xs font-extrabold bg-white/15 backdrop-blur-xs px-2.5 py-1 rounded-md mb-2 sm:mb-3 border border-white/20">
+            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+            <span>{current.badge}</span>
           </span>
-        </motion.h1>
 
-        {/* Animated Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
-          className="text-base sm:text-lg text-blue-100/90 max-w-2xl mx-auto mb-9 leading-relaxed font-normal"
-        >
-          آلاف الإعلانات الموثوقة للسيارات، العقارات، الجوالات، والأثاث في السعودية، مصر، الإمارات، الكويت، وجميع أنحاء الوطن العربي.
-        </motion.p>
+          <h1 className="text-base sm:text-2xl lg:text-3xl font-black leading-snug mb-1.5 sm:mb-2.5 line-clamp-2">
+            {current.title}
+          </h1>
 
-        {/* Animated Main Search Box */}
-        <motion.form
-          onSubmit={handleSearch}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4, ease: 'easeOut' }}
-          className="bg-white/95 backdrop-blur-md p-3.5 rounded-3xl shadow-2xl border border-blue-200 text-slate-900 space-y-2.5 text-right"
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-            {/* Keyword Search Input */}
-            <div className="sm:col-span-4 relative flex items-center">
-              <Search className="w-5 h-5 platform-icon-tint absolute right-3.5 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="عن ماذا تبحث؟ (لاندكروزر، آيفون، شقة)..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pr-11 pl-3 py-3.5 bg-blue-50/60 hover:bg-blue-50 focus:bg-white rounded-2xl border border-blue-100 focus:border-brand-500 outline-none text-xs sm:text-sm font-medium transition-colors"
-              />
-            </div>
+          <p className="hidden sm:block text-xs sm:text-sm text-slate-200 mb-4 line-clamp-1">
+            {current.subtitle}
+          </p>
 
-            {/* Country Dropdown */}
-            <div className="sm:col-span-2 relative flex items-center">
-              <Globe className="w-4 h-4 platform-icon-tint absolute right-3 pointer-events-none" />
-              <select
-                value={selectedCountry}
-                onChange={(e) => handleCountryChange(e.target.value)}
-                className="w-full pr-8 pl-2 py-3.5 bg-blue-50/60 hover:bg-blue-50 focus:bg-white rounded-2xl border border-blue-100 focus:border-brand-500 outline-none text-xs font-bold text-slate-700 transition-colors appearance-none cursor-pointer truncate"
-              >
-                <option value="">كل الدول 🌍</option>
-                {ARAB_COUNTRIES.map((country) => (
-                  <option key={country.code} value={country.name}>
-                    {country.flag} {country.shortName}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* City Dropdown */}
-            <div className="sm:col-span-2 relative flex items-center">
-              <MapPin className="w-4 h-4 platform-icon-tint absolute right-3 pointer-events-none" />
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full pr-8 pl-2 py-3.5 bg-blue-50/60 hover:bg-blue-50 focus:bg-white rounded-2xl border border-blue-100 focus:border-brand-500 outline-none text-xs font-bold text-slate-700 transition-colors appearance-none cursor-pointer truncate"
-              >
-                <option value="">
-                  {selectedCountry ? 'جميع مدن الدولة' : 'جميع المدن'}
-                </option>
-                {selectedCountry ? (
-                  currentCities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))
-                ) : (
-                  ARAB_COUNTRIES.map((country) => (
-                    <optgroup key={country.code} label={`${country.flag} ${country.shortName}`}>
-                      {country.cities.map((city) => (
-                        <option key={`${country.code}-${city}`} value={city}>
-                          {city}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))
-                )}
-              </select>
-            </div>
-
-            {/* Category Dropdown */}
-            <div className="sm:col-span-2 relative flex items-center">
-              <Layers className="w-4 h-4 platform-icon-tint absolute right-3 pointer-events-none" />
-              <select
-                value={selectedCategory}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full pr-8 pl-2 py-3.5 bg-blue-50/60 hover:bg-blue-50 focus:bg-white rounded-2xl border border-blue-100 focus:border-brand-500 outline-none text-xs font-bold text-slate-700 transition-colors appearance-none cursor-pointer truncate"
-              >
-                <option value="">كل الأقسام</option>
-                {categoriesList.map((cat: any) => (
-                  <option key={cat.slug} value={cat.slug}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Submit Search Button */}
-            <div className="sm:col-span-2 flex">
-              <motion.button
-                type="submit"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full bg-gradient-to-r from-brand-600 via-blue-600 to-sky-500 hover:from-brand-700 hover:to-blue-700 text-white font-bold text-xs sm:text-sm py-3.5 px-3 rounded-2xl shadow-lg shadow-brand-600/30 flex items-center justify-center gap-1.5 transition-all duration-200"
-              >
-                <span>ابحث الآن</span>
-                <ArrowLeft className="w-4 h-4" />
-              </motion.button>
-            </div>
+          <div className="flex items-center gap-2.5 mt-1 sm:mt-0">
+            <Link
+              href={current.ctaHref}
+              className="inline-flex items-center gap-1.5 bg-[#e00000] hover:bg-[#c20000] text-white font-extrabold text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg shadow-md transition-colors"
+            >
+              {current.id === 'sell-fast' ? (
+                <Plus className="w-4 h-4 stroke-[2.8]" />
+              ) : null}
+              <span>{current.ctaLabel}</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+            </Link>
           </div>
+        </div>
 
-          {/* Subcategory Quick Row if a Category with Subcategories is Selected */}
-          {currentSubcategories.length > 0 && (
-            <div className="flex flex-nowrap sm:flex-wrap items-center gap-2 pt-2 border-t border-blue-100 px-1 overflow-x-auto no-scrollbar">
-              <span className="text-[11px] font-bold text-slate-700 shrink-0">
-                اختر القسم الفرعي في {activeCatObj?.name}:
-              </span>
-              <button
-                type="button"
-                onClick={() => setSelectedSubcategory('')}
-                className={`shrink-0 px-3 py-1 rounded-xl text-xs font-bold transition-colors ${
-                  selectedSubcategory === ''
-                    ? 'platform-icon-active'
-                    : 'bg-blue-50 text-slate-700 hover:bg-blue-100'
-                }`}
-              >
-                الكل
-              </button>
-              {currentSubcategories.map((sub: any) => (
-                <button
-                  key={sub.id}
-                  type="button"
-                  onClick={() => setSelectedSubcategory(sub.id)}
-                  className={`shrink-0 px-3 py-1 rounded-xl text-xs font-bold transition-colors whitespace-nowrap ${
-                    selectedSubcategory === sub.id
-                      ? 'platform-icon-active'
-                      : 'bg-blue-50 text-slate-700 hover:bg-blue-100'
-                  }`}
-                >
-                  {sub.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </motion.form>
-
-        {/* Quick Search Tag Chips with Arab Cities */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-6 flex flex-nowrap sm:flex-wrap items-center sm:justify-center gap-2 text-xs text-blue-100 overflow-x-auto no-scrollbar pb-1"
+        {/* Navigation Arrows (Desktop/Tablet) */}
+        <button
+          type="button"
+          onClick={() =>
+            setActiveSlide((prev) =>
+              prev === 0 ? PROMO_SLIDES.length - 1 : prev - 1
+            )
+          }
+          aria-label="السابق"
+          className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/65 text-white items-center justify-center transition-colors cursor-pointer"
         >
-          <span className="font-bold text-sky-300 shrink-0">المدن الأكثر نشاطاً:</span>
-          {[
-            'الرياض 🇸🇦',
-            'القاهرة 🇪🇬',
-            'دبي 🇦🇪',
-            'الكويت 🇰🇼',
-            'الدوحة 🇶🇦',
-            'عمان 🇯🇴',
-            'الدار البيضاء 🇲🇦',
-            'بغداد 🇮🇶',
-          ].map((chip) => {
-            const cityName = chip.split(' ')[0];
-            return (
-              <button
-                key={chip}
-                onClick={() => {
-                  router.push(`/ads?city=${encodeURIComponent(cityName)}`);
-                }}
-                className="shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/15 font-medium"
-              >
-                {chip}
-              </button>
-            );
-          })}
-        </motion.div>
+          <ChevronRight className="w-5 h-5" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            setActiveSlide((prev) => (prev + 1) % PROMO_SLIDES.length)
+          }
+          aria-label="التالي"
+          className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/65 text-white items-center justify-center transition-colors cursor-pointer"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        {/* Slide Dots */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
+          {PROMO_SLIDES.map((s, idx) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setActiveSlide(idx)}
+              aria-label={`انتقل إلى الشريحة ${idx + 1}`}
+              className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                idx === activeSlide
+                  ? 'w-6 bg-[#e00000]'
+                  : 'w-2 bg-white/50 hover:bg-white/80'
+              }`}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };

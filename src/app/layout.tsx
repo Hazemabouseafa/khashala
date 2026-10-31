@@ -2,13 +2,14 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 import { BrandingProvider } from '@/components/providers/BrandingProvider';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
 export const viewport: Viewport = {
-  themeColor: '#1e3a8a',
+  themeColor: '#ffffff',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -111,11 +112,12 @@ export default async function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-arabic antialiased flex flex-col min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-sky-100 text-slate-900">
+      <body className="font-arabic antialiased flex flex-col min-h-screen bg-[#f7f8fa] text-[#222222]">
         <BrandingProvider initialBranding={initialBranding}>
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 pb-20 md:pb-0">{children}</main>
           <Footer />
+          <MobileBottomNav />
         </BrandingProvider>
       </body>
     </html>

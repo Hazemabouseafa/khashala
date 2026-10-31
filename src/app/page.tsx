@@ -5,211 +5,207 @@ import { CategoryGrid } from '@/components/home/CategoryGrid';
 import { AdCard } from '@/components/ads/AdCard';
 import { prisma } from '@/lib/prisma';
 import { ensureSampleDataSeeded } from '@/lib/auto-seed';
-import { PlusCircle, Flame, Star, Shield, Zap, HeartHandshake } from 'lucide-react';
+import { ArrowLeft, Star, Plus } from 'lucide-react';
 
 export const revalidate = 0;
 
-async function getHomeAds() {
+const HOME_CATEGORY_SHELVES = [
+  { slug: 'vehicles', title: 'سيارات ومركبات للبيع' },
+  { slug: 'real-estate', title: 'عقارات للبيع والإيجار' },
+  { slug: 'electronics', title: 'موبايلات وإلكترونيات' },
+  { slug: 'furniture', title: 'أثاث وديكور منزلي' },
+  { slug: 'fashion', title: 'أزياء وساعات فاخرة' },
+  { slug: 'jobs', title: 'وظائف وفرص عمل' },
+];
+
+function normalizeAds(ads: any[]) {
+  return ads.map((ad: any) => ({
+    ...ad,
+    images: Array.isArray(ad.images)
+      ? ad.images
+      : typeof ad.images === 'string'
+      ? JSON.parse(ad.images || '[]')
+      : [],
+  }));
+}
+
+async function getHomeMarketplaceData() {
   try {
     await ensureSampleDataSeeded();
-    const [featuredRaw, latestRaw] = await Promise.all([
+
+    const adInclude = {
+      category: true,
+      subcategory: true,
+      user: { select: { id: true, name: true, phone: true } },
+    };
+
+    const [featuredRaw, latestRaw, ...shelfResults] = await Promise.all([
       prisma.ad.findMany({
         where: { status: 'ACTIVE' as any, isFeatured: true },
         orderBy: { createdAt: 'desc' },
         take: 8,
-        include: {
-          category: true,
-          subcategory: true,
-        },
+        include: adInclude,
       }),
       prisma.ad.findMany({
         where: { status: 'ACTIVE' as any },
         orderBy: { createdAt: 'desc' },
-        take: 16,
-        include: {
-          category: true,
-          subcategory: true,
-        },
+        take: 12,
+        include: adInclude,
       }),
+      ...HOME_CATEGORY_SHELVES.map((shelf) =>
+        prisma.ad.findMany({
+          where: {
+            status: 'ACTIVE' as any,
+            category: { slug: shelf.slug },
+          },
+          orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
+          take: 8,
+          include: adInclude,
+        })
+      ),
     ]);
 
-    const normalize = (ads: any[]) =>
-      ads.map((ad: any) => ({
-        ...ad,
-        images: Array.isArray(ad.images)
-          ? ad.images
-          : typeof ad.images === 'string'
-          ? JSON.parse(ad.images || '[]')
-          : [],
-      }));
+    const shelves = HOME_CATEGORY_SHELVES.map((shelf, idx) => ({
+      ...shelf,
+      ads: normalizeAds(shelfResults[idx] || []),
+    })).filter((s) => s.ads.length > 0);
 
     return {
-      featuredAds: normalize(featuredRaw),
-      latestAds: normalize(latestRaw),
+      featuredAds: normalizeAds(featuredRaw),
+      latestAds: normalizeAds(latestRaw),
+      shelves,
     };
   } catch (err) {
-    console.error('Error loading ads:', err);
-    return { featuredAds: [], latestAds: [] };
+    console.error('Error loading homepage marketplace data:', err);
+    return { featuredAds: [], latestAds: [], shelves: [] };
   }
 }
 
 export default async function HomePage() {
-  const { featuredAds, latestAds } = await getHomeAds();
+  const { featuredAds, latestAds, shelves } = await getHomeMarketplaceData();
 
   return (
-    <div className="space-y-6 pb-16">
-      {/* Hero Section */}
+    <div className="space-y-6 sm:space-y-8 pb-12">
+      {/* 1. Promotional Banner Slider */}
       <HeroSection />
 
-      {/* Categories & Subcategories Grid (Identical Card Style) */}
+      {/* 2. All Categories Horizontal Strip & Subcategory Pills */}
       <CategoryGrid />
 
-      {/* 1. Featured Ads Section */}
+      {/* 3. Featured VIP Ads Horizontal Shelf */}
       {featuredAds.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="bg-gradient-to-br from-white/90 via-blue-50/70 to-sky-50/80 backdrop-blur-md rounded-3xl border border-blue-200/90 p-6 sm:p-8 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <div>
-                <div className="inline-flex items-center gap-1.5 text-xs font-black text-amber-700 bg-amber-100/90 border border-amber-300 px-3 py-1 rounded-full mb-2">
-                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-600" />
-                  <span>إعلانات مميزة وموثقة (VIP Featured)</span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-                  عروض النخبة المميزة ⭐
-                </h2>
-              </div>
+        <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-2">
+          <div className="flex items-center justify-between mb-3.5">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-amber-400 text-slate-950">
+                <Star className="w-3.5 h-3.5 fill-slate-950" />
+              </span>
+              <h2 className="text-base sm:text-xl font-black text-[#222222]">
+                إعلانات مميزة ومختارة
+              </h2>
+            </div>
 
-              <Link
-                href="/ads?isFeatured=true"
-                className="self-start sm:self-auto text-xs sm:text-sm font-bold text-brand-700 hover:text-brand-800 bg-white hover:bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-xl transition-colors shadow-2xs"
+            <Link
+              href="/ads?isFeatured=true"
+              className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-[#e00000] hover:underline"
+            >
+              <span>المزيد</span>
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Horizontal Scroll on Mobile/Tablet, 4-Column Grid on Desktop */}
+          <div className="flex flex-nowrap overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3 -mx-3 px-3 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-4 lg:gap-4">
+            {featuredAds.slice(0, 8).map((ad: any) => (
+              <div
+                key={ad.id}
+                className="w-[215px] sm:w-[248px] lg:w-auto shrink-0 snap-start"
               >
-                عرض كل الإعلانات المميزة ←
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {featuredAds.map((ad: any) => (
-                <AdCard key={ad.id} ad={ad} />
-              ))}
-            </div>
+                <AdCard ad={ad} variant="grid" />
+              </div>
+            ))}
           </div>
         </section>
       )}
 
-      {/* 2. Latest Ads Listing */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 mb-1">
-              <Flame className="w-4 h-4 fill-brand-600" />
-              <span>متجدد على مدار الساعة</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-              أحدث الإعلانات المضافة
+      {/* 4. Per-Category Horizontal Shelves (Vehicles, Real Estate, Electronics, Furniture, Fashion, Jobs) */}
+      {shelves.map((shelf) => (
+        <section
+          key={shelf.slug}
+          className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-1"
+        >
+          <div className="flex items-center justify-between mb-3.5">
+            <h2 className="text-base sm:text-xl font-black text-[#222222]">
+              {shelf.title}
             </h2>
+            <Link
+              href={`/ads?category=${encodeURIComponent(shelf.slug)}`}
+              className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-[#e00000] hover:underline"
+            >
+              <span>عرض المزيد</span>
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Swipeable Horizontal Cards on Mobile, 4-Col Row on Desktop */}
+          <div className="flex flex-nowrap overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3 -mx-3 px-3 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-4 lg:gap-4">
+            {shelf.ads.slice(0, 4).map((ad: any) => (
+              <div
+                key={ad.id}
+                className="w-[215px] sm:w-[248px] lg:w-auto shrink-0 snap-start"
+              >
+                <AdCard ad={ad} variant="grid" />
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      {/* 5. Mid-Page Sell Your Item Banner */}
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2">
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs">
+          <div className="text-center sm:text-right">
+            <h3 className="text-base sm:text-xl font-black text-[#222222] mb-1">
+              عندك غرض ما تحتاجه؟ حوّله لكاش اليوم!
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500">
+              انشر إعلانك مجاناً في ثوانٍ واستقبل عروض الشراء مباشرة عبر الهاتف أو واتساب.
+            </p>
           </div>
 
           <Link
-            href="/ads"
-            className="self-start sm:self-auto text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 px-5 py-2.5 rounded-xl transition-colors shadow-sm"
+            href="/ads/create"
+            className="shrink-0 inline-flex items-center gap-2 bg-[#e00000] hover:bg-[#c20000] text-white font-extrabold text-xs sm:text-sm px-6 py-3 rounded-lg shadow-xs transition-colors"
           >
-            مشاهدة جميع الإعلانات ←
+            <Plus className="w-4 h-4 stroke-[2.8]" />
+            <span>أضف إعلانك الآن</span>
           </Link>
         </div>
+      </section>
 
-        {/* Ads Grid */}
-        {latestAds.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {/* 6. Freshly Added Ads Grid */}
+      {latestAds.length > 0 && (
+        <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-1">
+          <div className="flex items-center justify-between mb-3.5">
+            <h2 className="text-base sm:text-xl font-black text-[#222222]">
+              أحدث الإعلانات المضافة
+            </h2>
+            <Link
+              href="/ads"
+              className="inline-flex items-center gap-1 text-xs sm:text-sm font-extrabold text-[#e00000] hover:underline"
+            >
+              <span>كل الإعلانات</span>
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {latestAds.map((ad: any) => (
-              <AdCard key={ad.id} ad={ad} />
+              <AdCard key={ad.id} ad={ad} variant="grid" />
             ))}
           </div>
-        ) : (
-          <div className="p-12 text-center bg-white rounded-3xl border border-blue-200">
-            <p className="text-base text-slate-500 font-medium">لا توجد إعلانات منشورة حتى الآن.</p>
-            <Link
-              href="/ads/create"
-              className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-brand-600 text-white font-bold rounded-xl text-sm"
-            >
-              كن أول من يضيف إعلاناً!
-            </Link>
-          </div>
-        )}
-      </section>
-
-      {/* Post Ad CTA Banner (Harmonized Royal & Sky Blue) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-12">
-        <div className="bg-gradient-to-l from-navy-900 via-brand-700 to-sky-600 rounded-3xl p-8 sm:p-12 text-white shadow-xl shadow-brand-700/20 border border-blue-400/30 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="relative z-10 max-w-xl text-center md:text-right">
-            <span className="inline-block text-xs font-extrabold uppercase tracking-wider bg-sky-400/20 text-sky-200 border border-sky-300/30 px-3.5 py-1 rounded-full mb-3 backdrop-blur-xs">
-              مجاناً وبدون أي عمولة
-            </span>
-            <h3 className="text-2xl sm:text-4xl font-black mb-3">
-              عندك سيارة، عقار، أو جهاز تبي تبيعه بسرعة؟
-            </h3>
-            <p className="text-blue-100 text-sm sm:text-base leading-relaxed">
-              انشر إعلانك الآن على خشاله في أقل من دقيقة، واستقبل اتصالات ورسائل المشترين مباشرة عبر واتساب في 22 دولة عربية.
-            </p>
-          </div>
-
-          <div className="relative z-10 shrink-0">
-            <Link
-              href="/ads/create"
-              className="inline-flex items-center gap-2 bg-white hover:bg-blue-50 text-brand-700 font-black text-base px-8 py-4 rounded-2xl shadow-xl transition-all duration-200 active:scale-95"
-            >
-              <PlusCircle className="w-5 h-5 stroke-[2.5]" />
-              <span>أضف إعلانك مجاناً</span>
-            </Link>
-          </div>
-
-          {/* Decorative circle */}
-          <div className="absolute -top-16 -left-16 w-64 h-64 bg-sky-400/20 rounded-full blur-2xl pointer-events-none" />
-        </div>
-      </section>
-
-      {/* Why Khashala Feature Blocks */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-2xl font-black text-slate-900">
-            لماذا يتفوق &quot;خشاله&quot; في سوق الإعلانات المبوبة؟
-          </h2>
-          <p className="text-sm text-slate-600 mt-2">
-            صممنا المنصة بأحدث المعايير العالمية لتمنحك أسهل وأسرع تجربة بيع وشراء في الوطن العربي
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="group bg-white/95 p-6 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl platform-icon-box platform-icon-box-hover flex items-center justify-center mb-4">
-              <Zap className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-slate-900 mb-2">سرعة فائقة وضغط صور ذكي</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              تقنية Sharp المدمجة تقوم بتحويل وضغط الصور تلقائياً لـ WebP لسرعة تصفح فائقة وتوفير استهلاك البيانات.
-            </p>
-          </div>
-
-          <div className="group bg-white/95 p-6 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl platform-icon-box platform-icon-box-hover flex items-center justify-center mb-4">
-              <Shield className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-slate-900 mb-2">فلترة شاملة وأقسام فرعية دقيقة</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              تصفح عبر الأقسام الرئيسية والفرعية مع فلاتر متقدمة تشمل الدولة، المدينة، الحالة، السعر، والتمييز.
-            </p>
-          </div>
-
-          <div className="group bg-white/95 p-6 rounded-2xl border border-blue-200/80 shadow-xs flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl platform-icon-box platform-icon-box-hover flex items-center justify-center mb-4">
-              <HeartHandshake className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-slate-900 mb-2">تواصل مباشر وعروض واتساب فورية</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              إمكانية إرسال استفسارات وعروض أسعار جاهزة للبائع عبر واتساب أو الاتصال المباشر بضغطة زر واحدة.
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
